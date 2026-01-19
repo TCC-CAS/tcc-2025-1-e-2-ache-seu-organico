@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { User, Tractor } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import Input from '../../components/Input'
 import Button from '../../components/Button'
@@ -62,8 +63,11 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h1>🥬 Ache Seu Orgânico</h1>
-        <h2>Cadastro</h2>
+        <div className="auth-logo">
+          <img src="/logo.png" alt="Logo" className="logo-img" />
+          <h1>Ache Seu Orgânico</h1>
+        </div>
+        <h2>Criar nova conta</h2>
         
         {error && <div className="error-message">{error}</div>}
         
@@ -123,8 +127,8 @@ const RegisterPage: React.FC = () => {
               disabled={loading}
               className="input-field"
             >
-              <option value="CONSUMER">👤 Consumidor</option>
-              <option value="PRODUCER">👨‍🌾 Produtor</option>
+              <option value="CONSUMER">Consumidor</option>
+              <option value="PRODUCER">Produtor</option>
             </select>
             <small className="form-hint">
               {formData.user_type === 'PRODUCER' 

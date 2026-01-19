@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Leaf } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import Input from '../../components/Input'
 import Button from '../../components/Button'
@@ -29,8 +30,11 @@ const LoginPage: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h1>🥬 Ache Seu Orgânico</h1>
-        <h2>Login</h2>
+        <div className="auth-logo">
+          <img src="/logo.png" alt="Logo" className="logo-img" />
+          <h1>Ache Seu Orgânico</h1>
+        </div>
+        <h2>Bem-vindo de volta</h2>
         
         {error && <div className="error-message">{error}</div>}
         
