@@ -210,7 +210,13 @@ const HomePage: React.FC = () => {
     name: loc.name,
     latitude: loc.address.latitude,
     longitude: loc.address.longitude,
-    location_type: loc.location_type
+    location_type: loc.location_type,
+    producer_name: loc.producer.business_name,
+    city: loc.address.city,
+    state: loc.address.state,
+    main_image: loc.main_image,
+    product_count: 4, // TODO: get from actual data
+    is_verified: loc.is_verified
   }))
 
   return (

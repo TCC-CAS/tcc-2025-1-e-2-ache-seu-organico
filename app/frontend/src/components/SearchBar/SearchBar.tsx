@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react'
 import './SearchBar.css'
 
 interface SearchBarProps {
@@ -31,7 +32,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
     <div className="search-bar-container">
       <div className="search-bar">
         <div className="search-input-wrapper">
-          <span className="search-icon">🔍</span>
+          <Search className="search-icon" size={20} />
           <input
             type="text"
             placeholder="Buscar por produtor, produto ou localização..."
@@ -45,7 +46,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
           className="filter-button"
           onClick={() => setShowFilters(!showFilters)}
         >
-          <span>🎛️</span>
+          <SlidersHorizontal size={18} />
           Filtros
         </button>
 

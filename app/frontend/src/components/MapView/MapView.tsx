@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import L from 'leaflet'
+import { MapPin, Tag, ExternalLink } from 'lucide-react'
 import 'leaflet/dist/leaflet.css'
 import './MapView.css'
 
@@ -19,9 +20,15 @@ L.Marker.prototype.options.icon = DefaultIcon
 interface Location {
   id: number
   name: string
-  latitude: number
-  longitude: number
+  latitude?: number
+  longitude?: number
   location_type: string
+  producer_name: string
+  main_image?: string
+  city: string
+  state: string
+  product_count: number
+  is_verified: boolean
 }
 
 interface MapViewProps {
@@ -43,6 +50,71 @@ const MapView: React.FC<MapViewProps> = ({
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const markersRef = useRef<{ [key: number]: L.Marker }>({})
 
+  const getLocationTypeLabel = (type: string) => {
+    const types: { [key: string]: string } = {
+      'FAIR': 'Feira',
+      'STORE': 'Loja',
+      'FARM': 'Fazenda',
+      'DELIVERY': 'Delivery',
+      'OTHER': 'Outro'
+    }
+    return types[type] || type
+  }
+
+  const createPopupContent = (location: Location) => {
+    const imageHtml = location.main_image 
+      ? `<img src="${location.main_image}" alt="${location.name}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px 8px 0 0; margin: -12px -16px 12px;" />`
+      : ''
+    
+    return `
+      <div class="map-popup-content">
+        ${imageHtml}
+        <h3 style="margin: 0 0 8px; color: #395628; font-size: 1rem; font-weight: 600;">${location.name}</h3>
+        <div style="display: flex; align-items: center; gap: 4px; color: #5a724c; font-size: 0.85rem; margin-bottom: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <span>${location.city}, ${location.state}</span>
+        </div>
+        <div style="display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;">
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: rgba(90, 114, 76, 0.1); border-radius: 4px; font-size: 0.8rem; color: #5a724c;">
+            ${getLocationTypeLabel(location.location_type)}
+          </span>
+          ${location.is_verified ? '<span style="display: inline-flex; align-items: center; padding: 4px 8px; background: rgba(34, 139, 34, 0.1); border-radius: 4px; font-size: 0.8rem; color: #228b22;">✓ Verificado</span>' : ''}
+        </div>
+        <div style="margin-bottom: 8px; color: #666; font-size: 0.85rem;">
+          <strong>${location.product_count}</strong> produtos disponíveis
+        </div>
+        <button 
+          onclick="window.dispatchEvent(new CustomEvent('visitLocation', { detail: ${location.id} }))"
+          style="
+            width: 100%;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #5a724c 0%, #395628 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+          "
+        >
+          Visitar
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </button>
+      </div>
+    `
+  }
+
   useEffect(() => {
     if (!mapContainerRef.current) return
 
@@ -55,8 +127,16 @@ const MapView: React.FC<MapViewProps> = ({
       maxZoom: 19,
     }).addTo(mapRef.current)
 
+    // Listen for visit location events
+    const handleVisitLocation = (e: any) => {
+      const locationId = e.detail
+      window.location.href = `/localizacao/${locationId}`
+    }
+    window.addEventListener('visitLocation', handleVisitLocation)
+
     return () => {
       mapRef.current?.remove()
+      window.removeEventListener('visitLocation', handleVisitLocation)
     }
   }, [])
 
@@ -72,7 +152,10 @@ const MapView: React.FC<MapViewProps> = ({
       if (location.latitude && location.longitude) {
         const marker = L.marker([location.latitude, location.longitude])
           .addTo(mapRef.current!)
-          .bindPopup(`<b>${location.name}</b><br>${location.location_type}`)
+          .bindPopup(createPopupContent(location), {
+            maxWidth: 300,
+            className: 'custom-popup'
+          })
 
         marker.on('click', () => {
           onMarkerClick?.(location.id)
@@ -86,7 +169,7 @@ const MapView: React.FC<MapViewProps> = ({
     if (locations.length > 0) {
       const bounds = locations
         .filter(loc => loc.latitude && loc.longitude)
-        .map(loc => [loc.latitude, loc.longitude] as [number, number])
+        .map(loc => [loc.latitude!, loc.longitude!] as [number, number])
 
       if (bounds.length > 0) {
         mapRef.current.fitBounds(bounds, { padding: [50, 50] })

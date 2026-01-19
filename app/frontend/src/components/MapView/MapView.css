@@ -15,18 +15,38 @@
 /* Custom popup styling */
 .leaflet-popup-content-wrapper {
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(57, 86, 40, 0.2);
-  background: rgba(239, 232, 228, 0.98);
+  box-shadow: 0 4px 20px rgba(57, 86, 40, 0.25);
+  background: rgba(252, 252, 252, 0.98);
+  padding: 0;
 }
 
 .leaflet-popup-content {
   margin: 12px 16px;
   font-family: 'Inter', sans-serif;
+  min-width: 250px;
 }
 
 .leaflet-popup-content b {
   color: #395628;
   font-size: 1.05rem;
+}
+
+.leaflet-popup-tip {
+  background: rgba(252, 252, 252, 0.98);
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+  border: 2px solid rgba(90, 114, 76, 0.15);
+}
+
+.map-popup-content {
+  font-family: 'Inter', sans-serif;
+}
+
+.map-popup-content button:hover {
+  background: linear-gradient(135deg, #4a6240 0%, #2d4620 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(57, 86, 40, 0.3);
 }
 
 /* Marker cluster styling (if using clusters later) */
