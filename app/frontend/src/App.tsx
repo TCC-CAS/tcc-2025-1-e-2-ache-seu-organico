@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import LoginPage from './pages/Login'
 import RegisterPage from './pages/Register'
@@ -12,19 +12,6 @@ import MensagensPage from './pages/Mensagens/MensagensPage'
 import ConfiguracoesPage from './pages/Configuracoes/ConfiguracoesPage'
 import MeuPerfilPage from './pages/MeuPerfil/MeuPerfilPage'
 import './App.css'
-
-// Public Route Component (redirect to home if already logged in)
-const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, loading } = useAuth()
-
-  if (loading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <h2>Carregando...</h2>
-    </div>
-  }
-
-  return !isAuthenticated ? <>{children}</> : <Navigate to="/" />
-}
 
 function AppRoutes() {
   return (

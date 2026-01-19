@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { MessageCircle, Send, User } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
+import Loading from '../../components/Loading'
 import './MensagensPage.css'
 
 interface Message {
@@ -81,11 +82,7 @@ const MensagensPage = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="mensagens-page">
-          <div className="loading-container">
-            <h2>Carregando mensagens...</h2>
-          </div>
-        </div>
+        <Loading variant="fullpage" text="Carregando mensagens..." />
       </Layout>
     )
   }

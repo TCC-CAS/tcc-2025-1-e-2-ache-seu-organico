@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Store, Plus, MapPin, Edit, Trash2, Eye } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
+import Loading from '../../components/Loading'
 import type { LocationListItem } from '../../types'
 import './MinhasFeirasPage.css'
 
@@ -55,11 +56,7 @@ const MinhasFeirasPage = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="minhas-feiras-page">
-          <div className="loading-container">
-            <h2>Carregando suas feiras...</h2>
-          </div>
-        </div>
+        <Loading variant="fullpage" text="Carregando suas feiras..." />
       </Layout>
     )
   }

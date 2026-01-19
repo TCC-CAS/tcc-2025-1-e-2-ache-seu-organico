@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BarChart3, TrendingUp, Eye, Heart, MapPin } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
+import Loading from '../../components/Loading'
 import './EstatisticasPage.css'
 
 interface Statistics {
@@ -55,11 +56,7 @@ const EstatisticasPage = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="estatisticas-page">
-          <div className="loading-container">
-            <h2>Carregando estatísticas...</h2>
-          </div>
-        </div>
+        <Loading variant="fullpage" text="Carregando estatísticas..." />
       </Layout>
     )
   }

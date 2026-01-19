@@ -28,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const userData = await authService.getCurrentUser()
           setUser(userData)
+          setTimeout(() => {}, 500) // Pequeno delay para melhorar a UX
         } catch (error) {
           console.error('Failed to load user:', error)
           authService.logout()

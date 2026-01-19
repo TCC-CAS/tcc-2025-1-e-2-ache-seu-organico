@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Heart, MapPin, Store, Navigation } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
+import Loading from '../../components/Loading'
 import { getFavorites, removeFavorite } from '../../api/favorites'
 import type { Favorite } from '../../types'
 import './FavoritosPage.css'
@@ -50,11 +51,7 @@ const FavoritosPage = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="favoritos-page">
-          <div className="favoritos-loading">
-            <h2>Carregando favoritos...</h2>
-          </div>
-        </div>
+        <Loading variant="fullpage" text="Carregando favoritos..." />
       </Layout>
     )
   }

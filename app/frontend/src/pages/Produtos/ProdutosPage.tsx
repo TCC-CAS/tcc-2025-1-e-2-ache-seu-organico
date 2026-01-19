@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { PackagePlus, Plus, Edit, Trash2, Leaf } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
+import Loading from '../../components/Loading'
 import './ProdutosPage.css'
 
 interface Product {
@@ -65,11 +66,7 @@ const ProdutosPage = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="produtos-page">
-          <div className="loading-container">
-            <h2>Carregando seus produtos...</h2>
-          </div>
-        </div>
+        <Loading variant="fullpage" text="Carregando seus produtos..." />
       </Layout>
     )
   }

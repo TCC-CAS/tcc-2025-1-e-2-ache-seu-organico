@@ -1,6 +1,7 @@
 import React from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { usePermissions } from '../../hooks/usePermissions'
+import Loading from '../Loading'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -26,11 +27,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Aguarda o carregamento do usuário antes de verificar permissões
   if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <h2>Carregando...</h2>
-      </div>
-    )
+    return <Loading variant="fullpage" text="Verificando permissões..." />
   }
 
   // Se precisa estar autenticado mas não está
