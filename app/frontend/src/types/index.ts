@@ -106,6 +106,7 @@ export interface LocationListItem {
   state: string
   product_count: number
   is_verified: boolean
+  is_favorited?: boolean
 }
 
 export interface Favorite {

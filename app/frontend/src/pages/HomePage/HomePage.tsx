@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { SearchX } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { locationService } from '../../api/locations'
+import { favoriteService } from '../../api/favorites'
 import { resolveImageUrl } from '../../utils/imageHelpers'
 import Header from '../../components/Header/Header'
 import SearchBar from '../../components/SearchBar/SearchBar'
 import LocationCard from '../../components/LocationCard/LocationCard'
 import MapView from '../../components/MapView/MapView'
+import { useToast } from '../../components/Toast'
 import './HomePage.css'
 
 interface Location {
@@ -25,20 +28,21 @@ interface Location {
   }
   main_image?: string
   is_verified: boolean
+  is_favorited?: boolean
 }
 
 const HomePage: React.FC = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const toast = useToast()
   const [locations, setLocations] = useState<Location[]>([])
   const [filteredLocations, setFilteredLocations] = useState<Location[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedLocationId, setSelectedLocationId] = useState<number | undefined>()
-  const [favorites, setFavorites] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     fetchLocations()
-  }, [])
+  }, [user])
 
   const fetchLocations = async () => {
     try {
@@ -62,7 +66,8 @@ const HomePage: React.FC = () => {
           longitude: loc.longitude ? parseFloat(loc.longitude.toString()) : 0
         },
         main_image: loc.main_image || undefined,
-        is_verified: loc.is_verified
+        is_verified: loc.is_verified,
+        is_favorited: loc.is_favorited || false
       }))
       
       setLocations(mappedLocations)
@@ -111,16 +116,33 @@ const HomePage: React.FC = () => {
     setFilteredLocations(filtered)
   }
 
-  const handleFavorite = (id: number) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev)
-      if (newFavorites.has(id)) {
-        newFavorites.delete(id)
+  const handleFavorite = async (id: number) => {
+    if (!user) {
+      toast.error('Faça login para adicionar favoritos')
+      navigate('/login')
+      return
+    }
+
+    try {
+      const result = await favoriteService.toggle(id)
+      
+      // Atualizar o estado local da location
+      setLocations(prev => prev.map(loc => 
+        loc.id === id ? { ...loc, is_favorited: result.favorited } : loc
+      ))
+      setFilteredLocations(prev => prev.map(loc => 
+        loc.id === id ? { ...loc, is_favorited: result.favorited } : loc
+      ))
+      
+      if (result.favorited) {
+        toast.success('Adicionado aos favoritos!')
       } else {
-        newFavorites.add(id)
+        toast.success('Removido dos favoritos')
       }
-      return newFavorites
-    })
+    } catch (error: any) {
+      console.error('Erro ao favoritar:', error)
+      toast.error('Erro ao atualizar favorito')
+    }
   }
 
   const handleCardClick = (id: number) => {
@@ -160,7 +182,7 @@ const HomePage: React.FC = () => {
             </div>
           ) : filteredLocations.length === 0 ? (
             <div className="empty-state">
-              <span className="empty-icon">🔍</span>
+              <SearchX size={64} strokeWidth={1.5} color="#999" />
               <h3>Nenhum local encontrado</h3>
               <p>Tente ajustar os filtros ou buscar por outro termo</p>
             </div>
@@ -179,7 +201,7 @@ const HomePage: React.FC = () => {
                   is_verified={location.is_verified}
                   products={['Alface', 'Tomate', 'Cenoura', 'Beterraba']}
                   onFavorite={handleFavorite}
-                  isFavorited={favorites.has(location.id)}
+                  isFavorited={location.is_favorited || false}
                   onClick={() => handleCardClick(location.id)}
                 />
               ))}

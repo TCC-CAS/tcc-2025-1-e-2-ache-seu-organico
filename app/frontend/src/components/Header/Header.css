@@ -3,6 +3,7 @@
   top: 0;
   left: 0;
   right: 0;
+  height: 80px;
   z-index: 1000;
   background: rgba(237, 245, 232, 0.96);
   backdrop-filter: blur(3px);
@@ -13,16 +14,19 @@
     url('/background.png');
   background-size: 97px 86px;
   background-repeat: repeat;
+  margin: 0;
+  padding: 0;
 }
 
 .header-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 1.125rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 2rem;
+  height: 100%;
 }
 
 .header-logo {

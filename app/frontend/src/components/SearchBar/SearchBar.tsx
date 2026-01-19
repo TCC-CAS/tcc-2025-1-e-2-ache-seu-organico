@@ -35,7 +35,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
           <Search className="search-icon" size={20} />
           <input
             type="text"
-            placeholder="Buscar por produtor, produto ou localização..."
+            placeholder="      Buscar por produtor, produto ou localização..."
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
             className="search-input"

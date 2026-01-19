@@ -141,10 +141,21 @@ class LocationListSerializer(serializers.ModelSerializer):
     city = serializers.CharField(source='address.city', read_only=True)
     state = serializers.CharField(source='address.state', read_only=True)
     product_count = serializers.IntegerField(source='products.count', read_only=True)
+    is_favorited = serializers.SerializerMethodField()
 
     class Meta:
         model = Location
         fields = (
             'id', 'name', 'location_type', 'producer_name', 'main_image',
-            'latitude', 'longitude', 'city', 'state', 'product_count', 'is_verified'
+            'latitude', 'longitude', 'city', 'state', 'product_count', 'is_verified',
+            'is_favorited'
         )
+    
+    def get_is_favorited(self, obj):
+        """
+        Check if current user has favorited this location.
+        """
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.favorited_by.filter(user=request.user).exists()
+        return False

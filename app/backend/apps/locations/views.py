@@ -20,7 +20,7 @@ class LocationViewSet(viewsets.ModelViewSet):
     """
     queryset = Location.objects.select_related(
         'producer', 'producer__user', 'address'
-    ).prefetch_related('products', 'images').filter(is_active=True)
+    ).prefetch_related('products', 'images', 'favorited_by').filter(is_active=True)
     
     serializer_class = LocationSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -81,7 +81,7 @@ class LocationViewSet(viewsets.ModelViewSet):
         
         producer_profile = request.user.producer_profile
         locations = self.queryset.filter(producer=producer_profile)
-        serializer = LocationListSerializer(locations, many=True)
+        serializer = LocationListSerializer(locations, many=True, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
@@ -97,7 +97,7 @@ class LocationViewSet(viewsets.ModelViewSet):
             address__longitude__isnull=False
         )
         
-        serializer = LocationListSerializer(queryset, many=True)
+        serializer = LocationListSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=True, methods=['post'])

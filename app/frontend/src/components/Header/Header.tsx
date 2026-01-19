@@ -23,7 +23,6 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
       <div className="header-content">
         <a href="/" className="header-logo">
           <img src="/logo.png" alt="Logo" className="logo-image" />
-          <span className="logo-text">Ache Seu Orgânico</span>
         </a>
 
         <nav className="header-nav">

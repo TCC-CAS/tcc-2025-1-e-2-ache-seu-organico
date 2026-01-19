@@ -62,7 +62,7 @@ const MapView: React.FC<MapViewProps> = ({
 
   const createPopupContent = (location: Location) => {
     const imageHtml = location.main_image 
-      ? `<img src="${location.main_image}" alt="${location.name}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px 8px 0 0; margin: -12px -16px 12px;" />`
+      ? `<img src="${location.main_image}" alt="${location.name}" style="width: 100%; height: 120px; object-fit: cover; object-position: center; border-radius: 8px 8px 0 0; margin: -12px -16px 12px; display: block;" />`
       : ''
     
     return `
