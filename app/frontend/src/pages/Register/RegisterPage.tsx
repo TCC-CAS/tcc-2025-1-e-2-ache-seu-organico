@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { User, Tractor } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import Input from '../../components/Input'
 import Button from '../../components/Button'

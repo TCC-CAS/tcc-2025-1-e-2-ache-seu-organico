@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react'
+import { Search, SlidersHorizontal } from 'lucide-react'
 import './SearchBar.css'
 
 interface SearchBarProps {

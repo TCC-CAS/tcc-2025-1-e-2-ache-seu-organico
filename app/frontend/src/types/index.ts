@@ -7,7 +7,7 @@ export interface User {
   user_type: 'CONSUMER' | 'PRODUCER'
   phone: string
   avatar?: string
-  is_active: boolean
+  is_active?: boolean
   created_at: string
   updated_at: string
 }

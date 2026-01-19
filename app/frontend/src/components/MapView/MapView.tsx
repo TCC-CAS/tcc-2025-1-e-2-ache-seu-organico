@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react'
 import L from 'leaflet'
-import { MapPin, Tag, ExternalLink } from 'lucide-react'
 import 'leaflet/dist/leaflet.css'
 import './MapView.css'
 

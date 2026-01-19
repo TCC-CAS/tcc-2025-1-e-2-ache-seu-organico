@@ -23,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const loadUser = async () => {
       const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+      
       if (token) {
         try {
           const userData = await authService.getCurrentUser()

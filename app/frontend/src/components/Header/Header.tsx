@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Home, Store, Heart, Info, MessageCircle, Bell, User, Settings, LogOut } from 'lucide-react'
+import { Home, Store, Heart, Info, MessageCircle, Bell, User, Settings, LogOut, PackagePlus, BarChart3, LogIn, UserPlus } from 'lucide-react'
+import { usePermissions } from '../../hooks/usePermissions'
 import './Header.css'
 
 interface HeaderProps {
@@ -7,55 +8,95 @@ interface HeaderProps {
     first_name: string
     full_name: string
     avatar?: string
+    user_type?: 'CONSUMER' | 'PRODUCER'
   } | null
   onLogout?: () => void
 }
 
 const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
   const [showDropdown, setShowDropdown] = useState(false)
+  const { isAuthenticated, isConsumer, isProducer } = usePermissions()
 
   return (
     <header className="header">
       <div className="header-content">
-        <div className="header-logo">
+        <a href="/" className="header-logo">
           <img src="/logo.png" alt="Logo" className="logo-image" />
           <span className="logo-text">Ache Seu Orgânico</span>
-        </div>
+        </a>
 
         <nav className="header-nav">
+          {/* Navegação sempre visível */}
           <a href="/" className="nav-link">
             <Home size={18} />
             <span>Início</span>
           </a>
-          <a href="/feiras" className="nav-link">
-            <Store size={18} />
-            <span>Feiras e Produtores</span>
-          </a>
-          <a href="/favoritos" className="nav-link">
-            <Heart size={18} />
-            <span>Favoritos</span>
-          </a>
-          <a href="/sobre" className="nav-link">
-            <Info size={18} />
-            <span>Sobre nós</span>
-          </a>
+
+          {/* Navegação para usuários não autenticados */}
+          {!isAuthenticated && (
+            <>
+              <a href="/sobre" className="nav-link">
+                <Info size={18} />
+                <span>Sobre nós</span>
+              </a>
+            </>
+          )}
+
+          {/* Navegação para consumidores */}
+          {isConsumer && (
+            <>
+              <a href="/feiras" className="nav-link">
+                <Store size={18} />
+                <span>Feiras e Produtores</span>
+              </a>
+              <a href="/favoritos" className="nav-link">
+                <Heart size={18} />
+                <span>Favoritos</span>
+              </a>
+              <a href="/sobre" className="nav-link">
+                <Info size={18} />
+                <span>Sobre nós</span>
+              </a>
+            </>
+          )}
+
+          {/* Navegação para produtores */}
+          {isProducer && (
+            <>
+              <a href="/minhas-feiras" className="nav-link">
+                <Store size={18} />
+                <span>Minhas Feiras</span>
+              </a>
+              <a href="/meus-produtos" className="nav-link">
+                <PackagePlus size={18} />
+                <span>Produtos</span>
+              </a>
+              <a href="/estatisticas" className="nav-link">
+                <BarChart3 size={18} />
+                <span>Estatísticas</span>
+              </a>
+            </>
+          )}
         </nav>
 
         <div className="header-actions">
-          {user ? (
+          {isAuthenticated ? (
             <>
-              <button className="icon-button" title="Mensagens">
+              {/* Mensagens e notificações para usuários autenticados */}
+              <a href="/mensagens" className="icon-button" title="Mensagens">
                 <MessageCircle size={20} />
-              </button>
+              </a>
               <button className="icon-button" title="Notificações">
                 <Bell size={20} />
               </button>
+              
+              {/* Dropdown de perfil */}
               <div className="profile-dropdown">
                 <button 
                   className="profile-button"
                   onClick={() => setShowDropdown(!showDropdown)}
                 >
-                  {user.avatar ? (
+                  {user?.avatar ? (
                     <img src={user.avatar} alt={user.full_name} className="profile-avatar" />
                   ) : (
                     <div className="profile-avatar-placeholder">
@@ -66,15 +107,18 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
                 {showDropdown && (
                   <div className="dropdown-menu">
                     <div className="dropdown-header">
-                      <strong>{user.full_name}</strong>
+                      <strong>{user?.full_name}</strong>
+                      <span className="user-type-badge">
+                        {user?.user_type === 'PRODUCER' ? 'Produtor' : 'Consumidor'}
+                      </span>
                     </div>
                     <a href="/configuracoes" className="dropdown-item">
                       <Settings size={16} />
                       <span>Configurações</span>
                     </a>
-                    <a href="/minha-pagina" className="dropdown-item">
+                    <a href="/meu-perfil" className="dropdown-item">
                       <User size={16} />
-                      <span>Minha Página</span>
+                      <span>Meu Perfil</span>
                     </a>
                     <button onClick={onLogout} className="dropdown-item">
                       <LogOut size={16} />
@@ -86,8 +130,15 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
             </>
           ) : (
             <>
-              <a href="/login" className="btn-login">Entrar</a>
-              <a href="/register" className="btn-register">Cadastrar</a>
+              {/* Botões para usuários não autenticados */}
+              <a href="/login" className="btn-login">
+                <LogIn size={18} />
+                Entrar
+              </a>
+              <a href="/register" className="btn-register">
+                <UserPlus size={18} />
+                Cadastrar
+              </a>
             </>
           )}
         </div>

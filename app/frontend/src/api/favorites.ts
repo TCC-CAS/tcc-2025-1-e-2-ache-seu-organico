@@ -27,3 +27,7 @@ export const favoriteService = {
     await api.delete(`${ENDPOINTS.FAVORITES}${id}/`)
   },
 }
+
+// Aliases para compatibilidade
+export const getFavorites = favoriteService.getAll
+export const removeFavorite = favoriteService.delete
