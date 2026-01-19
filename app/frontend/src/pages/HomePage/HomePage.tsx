@@ -11,6 +11,7 @@ import LocationCard from '../../components/LocationCard/LocationCard'
 import MapView from '../../components/MapView/MapView'
 import { useToast } from '../../components/Toast'
 import './HomePage.css'
+import type { Product } from '../../types'
 
 interface Location {
   id: number
@@ -29,6 +30,7 @@ interface Location {
   main_image?: string
   is_verified: boolean
   is_favorited?: boolean
+  products?: Product[]
 }
 
 const HomePage: React.FC = () => {
@@ -67,7 +69,8 @@ const HomePage: React.FC = () => {
         },
         main_image: loc.main_image || undefined,
         is_verified: loc.is_verified,
-        is_favorited: loc.is_favorited || false
+        is_favorited: loc.is_favorited || false,
+        products: loc.products || []
       }))
       
       setLocations(mappedLocations)
@@ -199,7 +202,7 @@ const HomePage: React.FC = () => {
                   city={location.address.city}
                   state={location.address.state}
                   is_verified={location.is_verified}
-                  products={['Alface', 'Tomate', 'Cenoura', 'Beterraba']}
+                  products={location.products?.map(p => p.name) || []}
                   onFavorite={handleFavorite}
                   isFavorited={location.is_favorited || false}
                   onClick={() => handleCardClick(location.id)}

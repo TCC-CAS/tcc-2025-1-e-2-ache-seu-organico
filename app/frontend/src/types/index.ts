@@ -105,6 +105,7 @@ export interface LocationListItem {
   city: string
   state: string
   product_count: number
+  products: Product[]
   is_verified: boolean
   is_favorited?: boolean
 }

@@ -88,6 +88,14 @@ class LocationCreateUpdateSerializer(serializers.ModelSerializer):
             except json.JSONDecodeError:
                 raise serializers.ValidationError({'address': 'Formato de endereço inválido'})
         
+        # Se product_ids vier como string JSON (FormData), parsear
+        if isinstance(data.get('product_ids'), str):
+            try:
+                data = data.copy()
+                data['product_ids'] = json.loads(data['product_ids'])
+            except json.JSONDecodeError:
+                raise serializers.ValidationError({'product_ids': 'Formato de IDs de produtos inválido'})
+        
         return super().to_internal_value(data)
 
     def create(self, validated_data):
@@ -141,14 +149,15 @@ class LocationListSerializer(serializers.ModelSerializer):
     city = serializers.CharField(source='address.city', read_only=True)
     state = serializers.CharField(source='address.state', read_only=True)
     product_count = serializers.IntegerField(source='products.count', read_only=True)
+    products = ProductListSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
 
     class Meta:
         model = Location
         fields = (
             'id', 'name', 'location_type', 'producer_name', 'main_image',
-            'latitude', 'longitude', 'city', 'state', 'product_count', 'is_verified',
-            'is_favorited'
+            'latitude', 'longitude', 'city', 'state', 'product_count', 'products',
+            'is_verified', 'is_favorited'
         )
     
     def get_is_favorited(self, obj):

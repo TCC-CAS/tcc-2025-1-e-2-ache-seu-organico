@@ -67,7 +67,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
                 <Store size={18} />
                 <span>Minhas Feiras</span>
               </a>
-              <a href="/meus-produtos" className="nav-link">
+              <a href="/produtos" className="nav-link">
                 <PackagePlus size={18} />
                 <span>Produtos</span>
               </a>

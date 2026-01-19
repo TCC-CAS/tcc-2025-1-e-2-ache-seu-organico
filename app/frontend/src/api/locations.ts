@@ -22,6 +22,7 @@ export interface LocationCreateUpdatePayload {
   operation_hours: string
   phone: string
   whatsapp: string
+  product_ids?: number[]
 }
 
 export const locationService = {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { MapPin, Store, Calendar, Clock, Upload, X } from 'lucide-react'
+import { MapPin, Store, Calendar, Clock, Upload, X, Package } from 'lucide-react'
 import { resolveImageUrl } from '../../utils/imageHelpers'
+import { productService, type ProductListItem } from '../../api/products'
 import Input from '../Input'
 import Button from '../Button'
 import './FairForm.css'
@@ -22,6 +23,7 @@ export interface FairFormData {
   operation_hours: string
   phone: string
   whatsapp: string
+  product_ids: number[]
   main_image?: File | null
   main_image_url?: string
 }
@@ -69,7 +71,8 @@ const FairForm: React.FC<FairFormProps> = ({
     operation_days: initialData?.operation_days || '',
     operation_hours: initialData?.operation_hours || '',
     phone: initialData?.phone || '',
-    whatsapp: initialData?.whatsapp || ''
+    whatsapp: initialData?.whatsapp || '',
+    product_ids: initialData?.product_ids || []
   })
 
   const [errors, setErrors] = useState<Partial<Record<keyof FairFormData, string>>>({})
@@ -77,6 +80,32 @@ const FairForm: React.FC<FairFormProps> = ({
   const [imagePreview, setImagePreview] = useState<string | null>(
     resolveImageUrl(initialData?.main_image_url) || null
   )
+  const [products, setProducts] = useState<ProductListItem[]>([])
+  const [loadingProducts, setLoadingProducts] = useState(true)
+
+  // Carregar produtos disponíveis
+  useEffect(() => {
+    loadProducts()
+  }, [])
+
+  const loadProducts = async () => {
+    try {
+      setLoadingProducts(true)
+      const data = await productService.getAll()
+      // Garantir que data é um array
+      if (Array.isArray(data)) {
+        setProducts(data)
+      } else {
+        console.error('API retornou formato inválido:', data)
+        setProducts([])
+      }
+    } catch (err) {
+      console.error('Erro ao carregar produtos:', err)
+      setProducts([])
+    } finally {
+      setLoadingProducts(false)
+    }
+  }
 
   // Buscar CEP e geolocalização
   const fetchAddressByCep = async (cep: string) => {
@@ -141,7 +170,7 @@ const FairForm: React.FC<FairFormProps> = ({
     }
   }, [formData.zip_code])
 
-  const handleChange = (field: keyof FairFormData, value: string) => {
+  const handleChange = (field: keyof FairFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     // Limpar erro do campo ao editar
     if (errors[field]) {
@@ -471,6 +500,53 @@ const FairForm: React.FC<FairFormProps> = ({
           placeholder="(00) 00000-0000"
           disabled={isLoading}
         />
+      </div>
+
+      {/* Produtos */}
+      <div className="form-section">
+        <h3 className="section-title">
+          <Package size={20} />
+          Produtos Disponíveis
+        </h3>
+
+        {loadingProducts ? (
+          <p className="loading-text">Carregando produtos...</p>
+        ) : !products || products.length === 0 ? (
+          <p className="empty-text">
+            Nenhum produto cadastrado. Cadastre produtos antes de associá-los à feira.
+          </p>
+        ) : (
+          <div className="products-selection">
+            <p className="help-text">Selecione os produtos disponíveis nesta feira:</p>
+            <div className="products-grid-selection">
+              {products.map(product => (
+                <label key={product.id} className="product-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={formData.product_ids.includes(product.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        handleChange('product_ids', [...formData.product_ids, product.id])
+                      } else {
+                        handleChange('product_ids', formData.product_ids.filter(id => id !== product.id))
+                      }
+                    }}
+                    disabled={isLoading}
+                  />
+                  <div className="product-info-checkbox">
+                    <span className="product-name">{product.name}</span>
+                    {product.category_name && (
+                      <span className="product-category-badge">{product.category_name}</span>
+                    )}
+                  </div>
+                </label>
+              ))}
+            </div>
+            <p className="selected-count">
+              {formData.product_ids.length} {formData.product_ids.length === 1 ? 'produto selecionado' : 'produtos selecionados'}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Botões */}

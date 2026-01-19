@@ -7,7 +7,6 @@ import FairForm, { type FairFormData } from '../../components/FairForm'
 import { useToast } from '../../components/Toast'
 import { locationService, type LocationCreateUpdatePayload } from '../../api/locations'
 import type { LocationListItem, Location } from '../../types'
-import { resolveImageUrl } from '../../utils/imageHelpers'
 import './MinhasFeirasPage.css'
 
 const MinhasFeirasPage = () => {
@@ -134,6 +133,11 @@ const MinhasFeirasPage = () => {
         formData.append('phone', data.phone)
         formData.append('whatsapp', data.whatsapp)
         
+        // Produtos
+        if (data.product_ids && data.product_ids.length > 0) {
+          formData.append('product_ids', JSON.stringify(data.product_ids))
+        }
+        
         // Imagem
         formData.append('main_image', data.main_image)
         
@@ -164,7 +168,8 @@ const MinhasFeirasPage = () => {
           operation_days: data.operation_days,
           operation_hours: data.operation_hours,
           phone: data.phone,
-          whatsapp: data.whatsapp
+          whatsapp: data.whatsapp,
+          product_ids: data.product_ids
         }
 
         if (editingLocation) {
@@ -395,6 +400,7 @@ const MinhasFeirasPage = () => {
               operation_hours: editingLocation.operation_hours,
               phone: editingLocation.phone,
               whatsapp: editingLocation.whatsapp,
+              product_ids: editingLocation.products?.map(p => p.id) || [],
               main_image_url: editingLocation.main_image || undefined
             } : undefined}
             onSubmit={handleSubmitForm}

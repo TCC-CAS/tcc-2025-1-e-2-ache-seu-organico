@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, permissions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, Product
@@ -50,8 +50,9 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """
-        Only admins can create/update/delete products.
+        Authenticated users (producers) can create/update/delete their products.
+        Admins can manage all products.
         """
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsAdminUser()]
+            return [permissions.IsAuthenticated()]
         return [IsAuthenticatedOrReadOnly()]
