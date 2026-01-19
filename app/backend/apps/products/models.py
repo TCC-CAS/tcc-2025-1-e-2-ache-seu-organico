@@ -35,8 +35,6 @@ class Product(TimeStampedModel):
     description = models.TextField(blank=True, verbose_name='Descrição')
     image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name='Imagem')
     
-    # This is a catalog item, not inventory
-    # Producers will associate products with their locations
     is_active = models.BooleanField(default=True, verbose_name='Ativo')
 
     class Meta:

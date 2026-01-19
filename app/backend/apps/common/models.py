@@ -24,7 +24,6 @@ class Address(models.Model):
     state = models.CharField(max_length=2, verbose_name='Estado')
     zip_code = models.CharField(max_length=9, verbose_name='CEP')
     
-    # Geolocation fields
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     

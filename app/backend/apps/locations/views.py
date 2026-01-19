@@ -92,10 +92,8 @@ class LocationViewSet(viewsets.ModelViewSet):
         Get simplified location data for map display.
         GET /api/locations/map_data/
         """
-        # Filter by query params if provided
         queryset = self.filter_queryset(self.get_queryset())
         
-        # Only include locations with valid coordinates
         queryset = queryset.filter(
             address__latitude__isnull=False,
             address__longitude__isnull=False

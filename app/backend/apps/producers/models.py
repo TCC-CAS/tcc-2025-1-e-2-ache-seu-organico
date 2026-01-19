@@ -14,7 +14,6 @@ class ProducerProfile(TimeStampedModel):
         verbose_name='Usuário'
     )
     
-    # Business information
     business_name = models.CharField(max_length=200, verbose_name='Nome da propriedade/negócio')
     description = models.TextField(blank=True, verbose_name='Descrição')
     cover_image = models.ImageField(
@@ -24,7 +23,6 @@ class ProducerProfile(TimeStampedModel):
         verbose_name='Imagem de capa'
     )
     
-    # Certifications
     has_organic_certification = models.BooleanField(
         default=False,
         verbose_name='Possui certificação orgânica'
@@ -34,13 +32,11 @@ class ProducerProfile(TimeStampedModel):
         verbose_name='Detalhes da certificação'
     )
     
-    # Social media
     website = models.URLField(blank=True, verbose_name='Website')
     instagram = models.CharField(max_length=100, blank=True, verbose_name='Instagram')
     facebook = models.CharField(max_length=100, blank=True, verbose_name='Facebook')
     whatsapp = models.CharField(max_length=20, blank=True, verbose_name='WhatsApp')
     
-    # Status
     is_verified = models.BooleanField(default=False, verbose_name='Verificado')
     is_active = models.BooleanField(default=True, verbose_name='Ativo')
 

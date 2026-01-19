@@ -21,7 +21,6 @@ class Favorite(TimeStampedModel):
         verbose_name='Localização'
     )
     
-    # Optional note
     note = models.TextField(blank=True, verbose_name='Nota pessoal')
 
     class Meta:

@@ -59,7 +59,6 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         )
         
         if not created:
-            # If it already exists, remove it (unfavorite)
             favorite.delete()
             return Response(
                 {'message': 'Removido dos favoritos', 'favorited': False},

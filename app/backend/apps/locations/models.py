@@ -23,7 +23,6 @@ class Location(TimeStampedModel):
         verbose_name='Produtor'
     )
     
-    # Basic information
     name = models.CharField(max_length=200, verbose_name='Nome do local')
     location_type = models.CharField(
         max_length=10,
@@ -33,7 +32,6 @@ class Location(TimeStampedModel):
     )
     description = models.TextField(blank=True, verbose_name='Descrição')
     
-    # Address and geolocation
     address = models.ForeignKey(
         Address,
         on_delete=models.CASCADE,
@@ -41,7 +39,6 @@ class Location(TimeStampedModel):
         verbose_name='Endereço'
     )
     
-    # Products available at this location
     products = models.ManyToManyField(
         Product,
         related_name='locations',
@@ -49,7 +46,6 @@ class Location(TimeStampedModel):
         verbose_name='Produtos disponíveis'
     )
     
-    # Photos
     main_image = models.ImageField(
         upload_to='locations/',
         blank=True,
@@ -57,7 +53,6 @@ class Location(TimeStampedModel):
         verbose_name='Imagem principal'
     )
     
-    # Operation times
     operation_days = models.CharField(
         max_length=200,
         blank=True,
@@ -71,11 +66,9 @@ class Location(TimeStampedModel):
         help_text='Ex: 7h às 12h'
     )
     
-    # Contact
     phone = models.CharField(max_length=20, blank=True, verbose_name='Telefone')
     whatsapp = models.CharField(max_length=20, blank=True, verbose_name='WhatsApp')
     
-    # Status
     is_active = models.BooleanField(default=True, verbose_name='Ativo')
     is_verified = models.BooleanField(default=False, verbose_name='Verificado')
 
