@@ -1,0 +1,67 @@
+.map-view-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.map-view {
+  height: 100%;
+  width: 100%;
+  border-radius: 0;
+  overflow: hidden;
+  opacity: 0.85;
+}
+
+/* Custom popup styling */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(57, 86, 40, 0.2);
+  background: rgba(239, 232, 228, 0.98);
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-family: 'Inter', sans-serif;
+}
+
+.leaflet-popup-content b {
+  color: #395628;
+  font-size: 1.05rem;
+}
+
+/* Marker cluster styling (if using clusters later) */
+.marker-cluster-small {
+  background-color: rgba(90, 114, 76, 0.5);
+}
+
+.marker-cluster-small div {
+  background-color: rgba(90, 114, 76, 0.8);
+  color: white;
+  font-weight: bold;
+}
+
+.marker-cluster-medium {
+  background-color: rgba(90, 114, 76, 0.6);
+}
+
+.marker-cluster-medium div {
+  background-color: rgba(90, 114, 76, 0.9);
+  color: white;
+  font-weight: bold;
+}
+
+.marker-cluster-large {
+  background-color: rgba(57, 86, 40, 0.6);
+}
+
+.marker-cluster-large div {
+  background-color: rgba(57, 86, 40, 0.9);
+  color: white;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .map-view {
+    border-radius: 0;
+  }
+}

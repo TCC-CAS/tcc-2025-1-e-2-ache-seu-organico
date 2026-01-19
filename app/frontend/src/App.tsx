@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import LoginPage from './pages/Login'
 import RegisterPage from './pages/Register'
-import HomePage from './pages/Home'
+import HomePage from './pages/HomePage'
 import './App.css'
 
 // Protected Route Component
@@ -37,6 +37,7 @@ function AppRoutes() {
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
       <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+      <Route path="/home" element={<Navigate to="/" />} />
     </Routes>
   )
 }

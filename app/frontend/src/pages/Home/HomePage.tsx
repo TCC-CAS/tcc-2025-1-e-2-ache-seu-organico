@@ -1,13 +1,13 @@
 import React from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import Layout from '../../components/Layout'
+import Layout from '../../components/Layout/Layout'
 import './HomePage.css'
 
 const HomePage: React.FC = () => {
   const { user, logout } = useAuth()
 
   return (
-    <Layout userName={user?.first_name} onLogout={logout}>
+    <Layout user={user} onLogout={logout}>
       <div className="home-content">
         <div className="welcome-card">
           <h2>Bem-vindo ao Ache Seu Orgânico! 🌱</h2>

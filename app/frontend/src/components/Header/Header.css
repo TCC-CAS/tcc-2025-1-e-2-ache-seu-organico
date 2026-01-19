@@ -1,63 +1,120 @@
 .header {
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 100;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(237, 245, 232, 0.96);
+  backdrop-filter: blur(3px);
+  box-shadow: 0 2px 12px rgba(57, 86, 40, 0.12), inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  border-bottom: 2px solid rgba(90, 114, 76, 0.15);
+  /* Textura de papel com background.png */
+  background-image: 
+    url('/background.png');
+  background-size: 97px 86px;
+  background-repeat: repeat;
 }
 
 .header-content {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 15px 20px;
+  padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.header-logo h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #333;
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #395628;
   cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.header-logo:hover {
+  transform: translateY(-2px);
+}
+
+.logo-icon {
+  font-size: 2rem;
+}
+
+.logo-text {
+  font-family: 'Poppins', sans-serif;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .header-user {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.header-username {
-  color: #666;
+  color: #5a724c;
   font-weight: 500;
 }
 
-.header-logout-btn {
-  padding: 8px 20px;
-  background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+.btn-logout,
+.btn-login,
+.btn-register {
+  padding: 0.6rem 1.5rem;
   border-radius: 8px;
-  font-size: 0.9rem;
   font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  border: none;
 }
 
-.header-logout-btn:hover {
-  background: #667eea;
+.btn-logout,
+.btn-login {
+  background: transparent;
+  color: #5a724c;
+  border: 2px solid #5a724c;
+}
+
+.btn-logout:hover,
+.btn-login:hover {
+  background: #5a724c;
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(90, 114, 76, 0.3);
+}
+
+.btn-register {
+  background: linear-gradient(135deg, #5a724c 0%, #395628 100%);
+  color: white;
+  border: none;
+}
+
+.btn-register:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(90, 114, 76, 0.4);
 }
 
 @media (max-width: 768px) {
   .header-content {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
+    padding: 0.75rem 1rem;
   }
 
-  .header-logo h1 {
-    font-size: 1.2rem;
+  .logo-text {
+    display: none;
+  }
+
+  .header-user {
+    font-size: 0.9rem;
+  }
+
+  .btn-logout,
+  .btn-login,
+  .btn-register {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
   }
 }

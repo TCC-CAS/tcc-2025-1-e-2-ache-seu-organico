@@ -2,27 +2,37 @@ import React from 'react'
 import './Header.css'
 
 interface HeaderProps {
-  userName?: string
+  user?: {
+    first_name: string
+    full_name: string
+  } | null
   onLogout?: () => void
 }
 
-const Header: React.FC<HeaderProps> = ({ userName, onLogout }) => {
+const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
   return (
     <header className="header">
       <div className="header-content">
         <div className="header-logo">
-          <h1>🥬 Ache Seu Orgânico</h1>
+          <span className="logo-icon">🥬</span>
+          <span className="logo-text">Ache Seu Orgânico</span>
         </div>
-        {userName && (
-          <div className="header-user">
-            <span className="header-username">Olá, {userName}!</span>
-            {onLogout && (
-              <button onClick={onLogout} className="header-logout-btn">
+
+        <nav className="header-nav">
+          {user ? (
+            <>
+              <span className="header-user">Olá, {user.first_name}!</span>
+              <button onClick={onLogout} className="btn-logout">
                 Sair
               </button>
-            )}
-          </div>
-        )}
+            </>
+          ) : (
+            <>
+              <a href="/login" className="btn-login">Entrar</a>
+              <a href="/register" className="btn-register">Cadastrar</a>
+            </>
+          )}
+        </nav>
       </div>
     </header>
   )

@@ -1,18 +1,21 @@
 import React from 'react'
-import Header from '../Header'
-import Footer from '../Footer'
+import Header from '../Header/Header'
+import Footer from '../Footer/Footer'
 import './Layout.css'
 
 interface LayoutProps {
   children: React.ReactNode
-  userName?: string
+  user?: {
+    first_name: string
+    full_name: string
+  } | null
   onLogout?: () => void
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, userName, onLogout }) => {
+const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
   return (
     <div className="layout">
-      <Header userName={userName} onLogout={onLogout} />
+      <Header user={user} onLogout={onLogout} />
       <main className="layout-main">{children}</main>
       <Footer />
     </div>
