@@ -2,6 +2,28 @@ import api from './axios'
 import type { LocationListItem, Location } from '../types'
 import { ENDPOINTS, MAP_ENDPOINTS } from '../utils/constants'
 
+// Interface para criação/atualização de location (formato da API)
+export interface LocationCreateUpdatePayload {
+  name: string
+  location_type: 'FAIR' | 'STORE' | 'FARM' | 'DELIVERY' | 'OTHER'
+  description: string
+  address: {
+    street: string
+    number: string
+    complement: string
+    neighborhood: string
+    city: string
+    state: string
+    zip_code: string
+    latitude?: number
+    longitude?: number
+  }
+  operation_days: string
+  operation_hours: string
+  phone: string
+  whatsapp: string
+}
+
 export const locationService = {
   getAll: async (): Promise<LocationListItem[]> => {
     const response = await api.get<LocationListItem[]>(ENDPOINTS.LOCATIONS)
@@ -23,13 +45,17 @@ export const locationService = {
     return response.data
   },
 
-  create: async (data: Partial<Location>): Promise<Location> => {
-    const response = await api.post<Location>(ENDPOINTS.LOCATIONS, data)
+  create: async (data: LocationCreateUpdatePayload | FormData): Promise<Location> => {
+    const response = await api.post<Location>(ENDPOINTS.LOCATIONS, data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {}
+    })
     return response.data
   },
 
-  update: async (id: number, data: Partial<Location>): Promise<Location> => {
-    const response = await api.patch<Location>(`${ENDPOINTS.LOCATIONS}${id}/`, data)
+  update: async (id: number, data: LocationCreateUpdatePayload | FormData): Promise<Location> => {
+    const response = await api.patch<Location>(`${ENDPOINTS.LOCATIONS}${id}/`, data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {}
+    })
     return response.data
   },
 
@@ -37,3 +63,4 @@ export const locationService = {
     await api.delete(`${ENDPOINTS.LOCATIONS}${id}/`)
   },
 }
+

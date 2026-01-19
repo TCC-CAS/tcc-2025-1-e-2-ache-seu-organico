@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { locationService } from '../../api/locations'
+import { resolveImageUrl } from '../../utils/imageHelpers'
 import Header from '../../components/Header/Header'
 import SearchBar from '../../components/SearchBar/SearchBar'
 import LocationCard from '../../components/LocationCard/LocationCard'
@@ -41,110 +43,35 @@ const HomePage: React.FC = () => {
   const fetchLocations = async () => {
     try {
       setLoading(true)
-      // Mock data for now - replace with actual API call
-      const mockLocations: Location[] = [
-        {
-          id: 1,
-          name: 'Feira Orgânica Vila Madalena',
-          location_type: 'FAIR',
-          producer: {
-            id: 1,
-            business_name: 'Sítio Verde'
-          },
-          address: {
-            city: 'São Paulo',
-            state: 'SP',
-            latitude: -23.5505,
-            longitude: -46.6333
-          },
-          is_verified: true
-        },
-        {
-          id: 2,
-          name: 'Mercado Orgânico Pinheiros',
-          location_type: 'STORE',
-          producer: {
-            id: 2,
-            business_name: 'Fazenda Boa Terra'
-          },
-          address: {
-            city: 'São Paulo',
-            state: 'SP',
-            latitude: -23.5629,
-            longitude: -46.6824
-          },
-          is_verified: true
-        },
-        {
-          id: 3,
-          name: 'Sítio da Família Silva',
-          location_type: 'FARM',
-          producer: {
-            id: 3,
-            business_name: 'Orgânicos Silva'
-          },
-          address: {
-            city: 'São Paulo',
-            state: 'SP',
-            latitude: -23.5489,
-            longitude: -46.6388
-          },
-          is_verified: false
-        },
-        {
-          id: 4,
-          name: 'Feira Livre Jardins',
-          location_type: 'FAIR',
-          producer: {
-            id: 4,
-            business_name: 'Horta do Seu João'
-          },
-          address: {
-            city: 'São Paulo',
-            state: 'SP',
-            latitude: -23.5645,
-            longitude: -46.6553
-          },
-          is_verified: true
-        },
-        {
-          id: 5,
-          name: 'Delivery Orgânico Express',
-          location_type: 'DELIVERY',
-          producer: {
-            id: 5,
-            business_name: 'Verde Delivery'
-          },
-          address: {
-            city: 'São Paulo',
-            state: 'SP',
-            latitude: -23.5475,
-            longitude: -46.6361
-          },
-          is_verified: true
-        },
-        {
-          id: 6,
-          name: 'Loja Natural Life',
-          location_type: 'STORE',
-          producer: {
-            id: 6,
-            business_name: 'Natural Life Produtos'
-          },
-          address: {
-            city: 'São Paulo',
-            state: 'SP',
-            latitude: -23.5588,
-            longitude: -46.6584
-          },
-          is_verified: false
-        }
-      ]
+      // Buscar dados reais da API
+      const data = await locationService.getMapData()
       
-      setLocations(mockLocations)
-      setFilteredLocations(mockLocations)
+      // Mapear para o formato esperado pelo componente
+      const mappedLocations: Location[] = data.map(loc => ({
+        id: loc.id,
+        name: loc.name,
+        location_type: loc.location_type,
+        producer: {
+          id: 0, // Não disponível na resposta do map_data
+          business_name: loc.producer_name
+        },
+        address: {
+          city: loc.city,
+          state: loc.state,
+          latitude: loc.latitude ? parseFloat(loc.latitude.toString()) : 0,
+          longitude: loc.longitude ? parseFloat(loc.longitude.toString()) : 0
+        },
+        main_image: loc.main_image || undefined,
+        is_verified: loc.is_verified
+      }))
+      
+      setLocations(mappedLocations)
+      setFilteredLocations(mappedLocations)
     } catch (error) {
       console.error('Erro ao carregar locais:', error)
+      // Em caso de erro, continuar sem dados
+      setLocations([])
+      setFilteredLocations([])
     } finally {
       setLoading(false)
     }
@@ -214,8 +141,8 @@ const HomePage: React.FC = () => {
     producer_name: loc.producer.business_name,
     city: loc.address.city,
     state: loc.address.state,
-    main_image: loc.main_image,
-    product_count: 4, // TODO: get from actual data
+    main_image: resolveImageUrl(loc.main_image) || undefined,
+    product_count: 0, // Não disponível no map_data
     is_verified: loc.is_verified
   }))
 
@@ -246,7 +173,7 @@ const HomePage: React.FC = () => {
                   name={location.name}
                   location_type={location.location_type}
                   producer_name={location.producer.business_name}
-                  main_image={location.main_image}
+                  main_image={resolveImageUrl(location.main_image) || undefined}
                   city={location.address.city}
                   state={location.address.state}
                   is_verified={location.is_verified}

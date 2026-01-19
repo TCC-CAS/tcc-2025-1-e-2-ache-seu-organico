@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -49,13 +49,12 @@ class LocationViewSet(viewsets.ModelViewSet):
         """
         Create location for current user's producer profile.
         """
-        try:
-            producer_profile = self.request.user.producer_profile
-        except:
+        if not hasattr(self.request.user, 'producer_profile'):
             raise serializers.ValidationError(
                 "Você precisa ter um perfil de produtor para criar localizações."
             )
         
+        producer_profile = self.request.user.producer_profile
         serializer.save(producer=producer_profile)
 
     def perform_update(self, serializer):
@@ -74,14 +73,13 @@ class LocationViewSet(viewsets.ModelViewSet):
         Get all locations for current user's producer profile.
         GET /api/locations/my_locations/
         """
-        try:
-            producer_profile = request.user.producer_profile
-        except:
+        if not hasattr(request.user, 'producer_profile'):
             return Response(
                 {'detail': 'Você não possui um perfil de produtor.'},
                 status=status.HTTP_404_NOT_FOUND
             )
         
+        producer_profile = request.user.producer_profile
         locations = self.queryset.filter(producer=producer_profile)
         serializer = LocationListSerializer(locations, many=True)
         return Response(serializer.data)

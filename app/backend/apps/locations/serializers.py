@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Location, LocationImage
 from apps.common.models import Address
 from apps.products.serializers import ProductListSerializer
+import json
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -74,6 +75,20 @@ class LocationCreateUpdateSerializer(serializers.ModelSerializer):
             'product_ids', 'main_image', 'operation_days', 'operation_hours',
             'phone', 'whatsapp'
         )
+
+    def to_internal_value(self, data):
+        """
+        Handle address field sent as JSON string (for FormData uploads)
+        """
+        # Se address vier como string JSON (FormData), parsear
+        if isinstance(data.get('address'), str):
+            try:
+                data = data.copy()
+                data['address'] = json.loads(data['address'])
+            except json.JSONDecodeError:
+                raise serializers.ValidationError({'address': 'Formato de endereço inválido'})
+        
+        return super().to_internal_value(data)
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
