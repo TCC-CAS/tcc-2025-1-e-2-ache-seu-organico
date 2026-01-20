@@ -39,8 +39,8 @@ const HomePage: React.FC = () => {
   const toast = useToast()
   const [locations, setLocations] = useState<Location[]>([])
   const [filteredLocations, setFilteredLocations] = useState<Location[]>([])
-  const [loading, setLoading] = useState(true)
   const [selectedLocationId, setSelectedLocationId] = useState<number | undefined>()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchLocations()

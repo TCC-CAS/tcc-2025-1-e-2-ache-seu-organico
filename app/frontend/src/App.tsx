@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import LoginPage from './pages/Login'
 import RegisterPage from './pages/Register'
 import HomePage from './pages/HomePage'
+import LocationDetailPage from './pages/LocationDetail'
 import FavoritosPage from './pages/Favoritos/FavoritosPage'
 import MinhasFeirasPage from './pages/MinhasFeiras/MinhasFeirasPage'
 import ProdutosPage from './pages/Produtos/ProdutosPage'
@@ -24,6 +25,7 @@ function AppRoutes() {
       {/* Rota Home - Liberada para todos */}
       <Route path="/" element={<HomePage />} />
       <Route path="/home" element={<Navigate to="/" />} />
+      <Route path="/localizacao/:id" element={<LocationDetailPage />} />
       
       {/* Rotas para Consumidores */}
       <Route 

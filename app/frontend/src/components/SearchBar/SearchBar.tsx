@@ -32,7 +32,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
     <div className="search-bar-container">
       <div className="search-bar">
         <div className="search-input-wrapper">
-          <Search className="search-icon" size={20} />
+          { query?.length == 0 && <Search size={16} className="search-icon" /> }
           <input
             type="text"
             placeholder="      Buscar por produtor, produto ou localização..."
