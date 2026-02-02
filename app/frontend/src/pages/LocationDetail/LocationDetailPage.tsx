@@ -23,6 +23,7 @@ import MapView from '../../components/MapView/MapView'
 import { useToast } from '../../components/Toast'
 import { locationService } from '../../api/locations'
 import { favoriteService } from '../../api/favorites'
+import { chatService } from '../../api/chat'
 import { resolveImageUrl } from '../../utils/imageHelpers'
 import type { Location } from '../../types'
 import './LocationDetailPage.css'
@@ -36,6 +37,7 @@ const LocationDetailPage = () => {
   const [loading, setLoading] = useState(true)
   const [isFavorited, setIsFavorited] = useState(false)
   const [favoriteLoading, setFavoriteLoading] = useState(false)
+  const [messageLoading, setMessageLoading] = useState(false)
 
   useEffect(() => {
     loadLocation()
@@ -98,6 +100,37 @@ const LocationDetailPage = () => {
     const phone = location.whatsapp.replace(/\D/g, '')
     const message = encodeURIComponent(`Olá! Vi ${location.name} no Ache Seu Orgânico e gostaria de saber mais informações.`)
     window.open(`https://wa.me/55${phone}?text=${message}`, '_blank')
+  }
+
+  const handleSendMessage = async () => {
+    if (!location?.producer_details?.user) {
+      showToast('error', 'Informações do produtor não disponíveis')
+      return
+    }
+
+    try {
+      setMessageLoading(true)
+      
+      // Criar ou obter conversa com o produtor
+      const conversation = await chatService.createConversation(location.producer_details.user)
+      
+      // Redirecionar para a página de mensagens
+      navigate(`/mensagens?conversation=${conversation.id}`)
+      showToast('success', 'Conversa iniciada!')
+    } catch (error: any) {
+      console.error('Erro ao iniciar conversa:', error)
+      
+      if (error.response?.status === 401) {
+        showToast('error', 'Faça login para enviar mensagens')
+        navigate('/login')
+      } else if (error.response?.data?.participant_id) {
+        showToast('error', error.response.data.participant_id[0])
+      } else {
+        showToast('error', 'Erro ao iniciar conversa')
+      }
+    } finally {
+      setMessageLoading(false)
+    }
   }
 
   if (loading) {
@@ -177,11 +210,19 @@ const LocationDetailPage = () => {
                 <div className="location-hero-actions">
                   <Button
                     variant="primary"
+                    onClick={handleSendMessage}
+                    disabled={messageLoading}
+                  >
+                    <MessageCircle size={18} style={{ marginRight: '0.5rem' }} />
+                    Enviar Mensagem
+                  </Button>
+                  <Button
+                    variant="secondary"
                     onClick={handleContact}
                     disabled={!location.whatsapp}
                   >
                     <MessageCircle size={18} style={{ marginRight: '0.5rem' }} />
-                    Entrar em Contato
+                    WhatsApp
                   </Button>
                   <Button
                     variant={isFavorited ? 'primary' : 'secondary'}

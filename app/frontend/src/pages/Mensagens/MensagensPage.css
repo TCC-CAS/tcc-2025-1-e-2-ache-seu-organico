@@ -8,6 +8,9 @@
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 2px solid rgba(90, 114, 76, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .header-title {
@@ -185,6 +188,25 @@
   border-radius: 12px;
   border: 1px solid rgba(90, 114, 76, 0.2);
   max-width: 70%;
+  align-self: flex-start;
+}
+
+.message-bubble.own-message {
+  background: linear-gradient(135deg, #5a724c 0%, #395628 100%);
+  border-color: #395628;
+  align-self: flex-end;
+}
+
+.message-bubble.own-message .message-sender {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.message-bubble.own-message .message-content {
+  color: white;
+}
+
+.message-bubble.own-message .message-time {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .message-sender {
@@ -249,6 +271,164 @@
   cursor: not-allowed;
 }
 
+/* Modal de Nova Conversa */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 2px solid rgba(90, 114, 76, 0.2);
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #395628;
+  font-size: 1.5rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+.modal-close:hover {
+  background: rgba(90, 114, 76, 0.1);
+  color: #395628;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-body h3 {
+  color: #395628;
+  margin-bottom: 1rem;
+}
+
+.empty-favorites {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #666;
+}
+
+.empty-favorites p {
+  margin: 0.5rem 0;
+}
+
+.favorites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.favorite-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 2px solid rgba(90, 114, 76, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.favorite-item:hover {
+  background: rgba(90, 114, 76, 0.05);
+  border-color: #5a724c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(90, 114, 76, 0.15);
+}
+
+.favorite-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #5a724c 0%, #395628 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.favorite-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.favorite-info h4 {
+  margin: 0 0 0.25rem 0;
+  color: #395628;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.favorite-info p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-start-chat {
+  background: linear-gradient(135deg, #5a724c 0%, #395628 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-start-chat:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(90, 114, 76, 0.4);
+}
+
 @media (max-width: 968px) {
   .messages-container {
     grid-template-columns: 280px 1fr;
@@ -258,6 +438,12 @@
 @media (max-width: 768px) {
   .mensagens-page {
     padding: 1rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
 
   .header-title h1 {
@@ -271,5 +457,18 @@
 
   .conversations-list {
     display: none;
+  }
+
+  .modal-content {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+  
+  .favorites-list {
+    gap: 0.5rem;
+  }
+  
+  .favorite-item {
+    padding: 0.75rem;
   }
 }

@@ -2,7 +2,18 @@ from rest_framework import serializers
 from .models import Location, LocationImage
 from apps.common.models import Address
 from apps.products.serializers import ProductListSerializer
+from apps.producers.models import ProducerProfile
 import json
+
+
+class ProducerMinimalSerializer(serializers.ModelSerializer):
+    """Serializer mínimo para dados do produtor necessários para chat"""
+    user = serializers.IntegerField(source='user.id', read_only=True)
+    name = serializers.CharField(source='business_name', read_only=True)
+    
+    class Meta:
+        model = ProducerProfile
+        fields = ('id', 'user', 'name')
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -134,6 +145,7 @@ class LocationListSerializer(serializers.ModelSerializer):
     Simplified serializer for location lists and map markers.
     """
     producer_name = serializers.CharField(source='producer.business_name', read_only=True)
+    producer_details = ProducerMinimalSerializer(source='producer', read_only=True)
     latitude = serializers.DecimalField(
         source='address.latitude',
         max_digits=9,
@@ -155,7 +167,7 @@ class LocationListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = (
-            'id', 'name', 'location_type', 'producer_name', 'main_image',
+            'id', 'name', 'location_type', 'producer_name', 'producer_details', 'main_image',
             'latitude', 'longitude', 'city', 'state', 'product_count', 'products',
             'is_verified', 'is_favorited'
         )

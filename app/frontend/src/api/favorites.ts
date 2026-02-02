@@ -2,9 +2,16 @@ import api from './axios'
 import type { Favorite } from '../types'
 import { ENDPOINTS } from '../utils/constants'
 
+interface PaginatedResponse<T> {
+  count: number
+  next: string | null
+  previous: string | null
+  results: T[]
+}
+
 export const favoriteService = {
-  getAll: async (): Promise<Favorite[]> => {
-    const response = await api.get<Favorite[]>(ENDPOINTS.FAVORITES)
+  getAll: async (): Promise<Favorite[] | PaginatedResponse<Favorite>> => {
+    const response = await api.get<PaginatedResponse<Favorite>>(ENDPOINTS.FAVORITES)
     return response.data
   },
 

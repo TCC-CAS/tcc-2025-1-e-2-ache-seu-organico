@@ -1,6 +1,9 @@
 // API Base URL
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
 
+// WebSocket Base URL
+export const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || 'ws://localhost:8000'
+
 // Auth endpoints
 export const AUTH_ENDPOINTS = {
   TOKEN: '/token/',
@@ -17,6 +20,8 @@ export const ENDPOINTS = {
   PRODUCTS: '/products/',
   FAVORITES: '/favorites/',
   CATEGORIES: '/products/categories/',
+  CHAT_CONVERSATIONS: '/chat/conversations/',
+  CHAT_MESSAGES: '/chat/messages/',
 }
 
 // Map endpoints

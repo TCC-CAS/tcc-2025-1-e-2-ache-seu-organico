@@ -23,6 +23,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(','
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',  # Deve vir primeiro para ASGI
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -35,6 +36,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'drf_spectacular',
+    'channels',
     
     # Local apps
     'apps.users',
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
     'apps.products',
     'apps.favorites',
     'apps.common',
+    'apps.chat',
 ]
 
 MIDDLEWARE = [
@@ -214,3 +217,24 @@ SPECTACULAR_SETTINGS = {
         'displayOperationId': True,
     },
 }
+
+# Channels Configuration
+ASGI_APPLICATION = 'config.asgi.application'
+
+# Channel layers configuration - usando In-Memory para desenvolvimento
+# Para produção, configure Redis
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
+
+# Para produção com Redis, use:
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [('127.0.0.1', 6379)],
+#         },
+#     },
+# }

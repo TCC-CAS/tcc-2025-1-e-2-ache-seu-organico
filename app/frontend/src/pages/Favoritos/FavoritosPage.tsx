@@ -25,7 +25,7 @@ const FavoritosPage = () => {
       setLoading(true)
       const data = await favoriteService.getAll()
       // A API retorna um objeto com paginação: { count, next, previous, results }
-      const favoritesArray = Array.isArray(data) ? data : (data.results || [])
+      const favoritesArray = Array.isArray(data) ? data : ('results' in data ? data.results : [])
       setFavorites(favoritesArray)
     } catch (err) {
       showToast('error', 'Erro ao carregar favoritos')
