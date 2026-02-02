@@ -27,11 +27,11 @@ function AppRoutes() {
       <Route path="/home" element={<Navigate to="/" />} />
       <Route path="/localizacao/:id" element={<LocationDetailPage />} />
       
-      {/* Rotas para Consumidores */}
+      {/* Rotas Autenticadas */}
       <Route 
         path="/favoritos" 
         element={
-          <ProtectedRoute requireAuth requireConsumer>
+          <ProtectedRoute requireAuth>
             <FavoritosPage />
           </ProtectedRoute>
         } 

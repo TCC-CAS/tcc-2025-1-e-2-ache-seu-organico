@@ -1,15 +1,20 @@
 import { useState, useEffect } from 'react'
-import { Heart, MapPin, Store, Navigation } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Heart, MapPin, Store, Tent, Tractor, Truck, Navigation, CheckCircle, Leaf, ExternalLink } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
 import Loading from '../../components/Loading'
-import { getFavorites, removeFavorite } from '../../api/favorites'
+import Button from '../../components/Button'
+import { useToast } from '../../components/Toast'
+import { favoriteService } from '../../api/favorites'
+import { resolveImageUrl } from '../../utils/imageHelpers'
 import type { Favorite } from '../../types'
 import './FavoritosPage.css'
 
 const FavoritosPage = () => {
+  const navigate = useNavigate()
+  const { showToast } = useToast()
   const [favorites, setFavorites] = useState<Favorite[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadFavorites()
@@ -18,11 +23,14 @@ const FavoritosPage = () => {
   const loadFavorites = async () => {
     try {
       setLoading(true)
-      const data = await getFavorites()
-      setFavorites(data)
+      const data = await favoriteService.getAll()
+      // A API retorna um objeto com paginação: { count, next, previous, results }
+      const favoritesArray = Array.isArray(data) ? data : (data.results || [])
+      setFavorites(favoritesArray)
     } catch (err) {
-      setError('Erro ao carregar favoritos')
+      showToast('error', 'Erro ao carregar favoritos')
       console.error('Erro ao carregar favoritos:', err)
+      setFavorites([])
     } finally {
       setLoading(false)
     }
@@ -30,11 +38,12 @@ const FavoritosPage = () => {
 
   const handleRemoveFavorite = async (favoriteId: number) => {
     try {
-      await removeFavorite(favoriteId)
+      await favoriteService.delete(favoriteId)
       setFavorites(favorites.filter(fav => fav.id !== favoriteId))
+      showToast('success', 'Removido dos favoritos')
     } catch (err) {
       console.error('Erro ao remover favorito:', err)
-      alert('Erro ao remover favorito')
+      showToast('error', 'Erro ao remover favorito')
     }
   }
 
@@ -48,10 +57,33 @@ const FavoritosPage = () => {
     }
   }
 
+  const handleVisit = (locationId: number) => {
+    navigate(`/localizacao/${locationId}`)
+  }
+
+  const getTypeIcon = (type: string) => {
+    const icons: Record<string, React.ReactNode> = {
+      FAIR: <Tent size={16} />,
+      STORE: <Store size={16} />,
+      FARM: <Tractor size={16} />,
+      DELIVERY: <Truck size={16} />,
+      OTHER: <Navigation size={16} />,
+    }
+    return icons[type] || icons.OTHER
+  }
+
+  const locationTypeLabels: Record<string, string> = {
+    FAIR: 'Feira',
+    STORE: 'Loja',
+    FARM: 'Propriedade',
+    DELIVERY: 'Delivery',
+    OTHER: 'Outro'
+  }
+
   if (loading) {
     return (
       <Layout>
-        <Loading variant="fullpage" text="Carregando favoritos..." />
+        <Loading />
       </Layout>
     )
   }
@@ -67,65 +99,86 @@ const FavoritosPage = () => {
           <p>Locais que você salvou para visitar depois</p>
         </div>
 
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
 
         {favorites.length === 0 ? (
           <div className="favoritos-empty">
-            <Heart size={64} color="#ccc" />
+            <Heart size={64} color="#cbd5e0" />
             <h2>Nenhum favorito ainda</h2>
-            <p>Explore o mapa e adicione locais aos seus favoritos!</p>
+            <p>Explore locais e adicione aos seus favoritos para acessá-los rapidamente!</p>
+            <Button variant="primary" onClick={() => navigate('/')}>
+              Explorar Locais
+            </Button>
           </div>
         ) : (
           <div className="favoritos-grid">
-            {favorites.map((favorite) => {
+            {Array.isArray(favorites) && favorites.map((favorite) => {
               const location = favorite.location_details
               return (
                 <div key={favorite.id} className="favorito-card">
-                  {location.main_image && (
-                    <div className="favorito-image">
-                      <img src={location.main_image} alt={location.name} />
-                    </div>
-                  )}
+                  <div className="favorito-image-container">
+                    {location.main_image ? (
+                      <img 
+                        src={resolveImageUrl(location.main_image) || undefined} 
+                        alt={location.name}
+                        className="favorito-image"
+                      />
+                    ) : (
+                      <div className="card-image-placeholder">
+                        <Leaf size={48} strokeWidth={1.5} />
+                      </div>
+                    )}
+                    <button
+                      className="favorite-btn favorited"
+                      onClick={() => handleRemoveFavorite(favorite.id)}
+                      title="Remover dos favoritos"
+                    >
+                      <Heart size={20} fill="#e53e3e" />
+                    </button>
+                    {location.is_verified && (
+                      <span className="verified-badge">
+                        <CheckCircle size={14} />
+                        Verificado
+                      </span>
+                    )}
+                  </div>
                   
                   <div className="favorito-content">
                     <div className="favorito-header-content">
                       <h3>{location.name}</h3>
-                      <button
-                        className="btn-remove-favorite"
-                        onClick={() => handleRemoveFavorite(favorite.id)}
-                        title="Remover dos favoritos"
-                      >
-                        <Heart size={20} fill="#5a724c" color="#5a724c" />
-                      </button>
+                      <span className="location-type-badge">
+                        {getTypeIcon(location.location_type)}
+                        {locationTypeLabels[location.location_type] || location.location_type}
+                      </span>
                     </div>
+
+                    <p className="favorito-producer">por {location.producer_name}</p>
 
                     <div className="favorito-info">
                       <div className="info-item">
                         <MapPin size={16} />
-                        <span>{location.city} - {location.state}</span>
-                      </div>
-                      <div className="info-item">
-                        <Store size={16} />
-                        <span>{location.producer_name}</span>
+                        <span>{location.city}, {location.state}</span>
                       </div>
                     </div>
 
                     {favorite.note && (
-                      <p className="favorito-description">{favorite.note}</p>
+                      <p className="favorito-note">{favorite.note}</p>
                     )}
 
                     <div className="favorito-actions">
-                      <button
-                        className="btn-navigate"
+                      <Button
+                        variant="primary"
+                        onClick={() => handleVisit(location.id)}
+                      >
+                        <ExternalLink size={16} style={{ marginRight: '0.5rem' }} />
+                        Visitar
+                      </Button>
+                      <Button
+                        variant="secondary"
                         onClick={() => handleNavigate(favorite)}
                       >
-                        <Navigation size={18} />
+                        <Navigation size={16} style={{ marginRight: '0.5rem' }} />
                         Como Chegar
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>

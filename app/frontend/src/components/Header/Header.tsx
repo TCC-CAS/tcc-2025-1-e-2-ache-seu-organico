@@ -71,6 +71,10 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
                 <PackagePlus size={18} />
                 <span>Produtos</span>
               </a>
+              <a href="/favoritos" className="nav-link">
+                <Heart size={18} />
+                <span>Favoritos</span>
+              </a>
               <a href="/estatisticas" className="nav-link">
                 <BarChart3 size={18} />
                 <span>Estatísticas</span>
