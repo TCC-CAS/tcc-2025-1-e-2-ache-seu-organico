@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.products',
     'apps.favorites',
     'apps.common',
+    'apps.analytics',
 ]
 
 MIDDLEWARE = [
