@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { BarChart3, TrendingUp, TrendingDown, Eye, Heart, MapPin, Phone, MessageCircle, Navigation, RefreshCw } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
 import Loading from '../../components/Loading'
-import { getAnalyticsSummary, AnalyticsSummary, recalculateStatistics } from '../../api/analytics'
-import { useToast } from '../../components/Toast/ToastContext'
+import { getAnalyticsSummary, recalculateStatistics } from '../../api/analytics'
+import type { AnalyticsSummary } from '../../api/analytics'
+import { useToast } from '../../components/Toast'
 import './EstatisticasPage.css'
 
 const EstatisticasPage = () => {
@@ -23,7 +24,7 @@ const EstatisticasPage = () => {
       setSummary(data)
     } catch (err: any) {
       console.error('Erro ao carregar estatísticas:', err)
-      showToast('Erro ao carregar estatísticas. Tente novamente.', 'error')
+      showToast('error', 'Erro ao carregar estatísticas. Tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -34,10 +35,10 @@ const EstatisticasPage = () => {
       setRefreshing(true)
       await recalculateStatistics()
       await loadStatistics()
-      showToast('Estatísticas atualizadas com sucesso!', 'success')
+      showToast('success', 'Estatísticas atualizadas com sucesso!')
     } catch (err) {
       console.error('Erro ao recalcular estatísticas:', err)
-      showToast('Erro ao atualizar estatísticas.', 'error')
+      showToast('error', 'Erro ao atualizar estatísticas.')
     } finally {
       setRefreshing(false)
     }

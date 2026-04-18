@@ -36,11 +36,12 @@ class LocationSerializer(serializers.ModelSerializer):
     images = LocationImageSerializer(many=True, read_only=True)
     products = ProductListSerializer(many=True, read_only=True)
     producer_name = serializers.CharField(source='producer.business_name', read_only=True)
+    producer_details = ProducerMinimalSerializer(source='producer', read_only=True)
 
     class Meta:
         model = Location
         fields = (
-            'id', 'producer', 'producer_name', 'name', 'location_type',
+            'id', 'producer', 'producer_name', 'producer_details', 'name', 'location_type',
             'description', 'address', 'products', 'main_image', 'images',
             'operation_days', 'operation_hours', 'phone', 'whatsapp',
             'is_active', 'is_verified', 'created_at', 'updated_at'

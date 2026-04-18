@@ -70,6 +70,11 @@ export interface Location {
   id: number
   producer: number
   producer_name: string
+  producer_details?: {
+    id: number
+    user: number
+    name: string
+  }
   name: string
   location_type: 'FAIR' | 'STORE' | 'FARM' | 'DELIVERY' | 'OTHER'
   description: string

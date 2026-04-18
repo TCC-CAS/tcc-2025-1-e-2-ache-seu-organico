@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
+import { Navigation } from 'lucide-react'
 import 'leaflet/dist/leaflet.css'
 import './MapView.css'
 
@@ -15,6 +16,19 @@ let DefaultIcon = L.icon({
 })
 
 L.Marker.prototype.options.icon = DefaultIcon
+
+// Create a custom icon for user location
+const UserLocationIcon = L.divIcon({
+  className: 'user-location-marker',
+  html: `
+    <div class="user-location-marker-inner">
+      <div class="user-location-pulse"></div>
+      <div class="user-location-dot"></div>
+    </div>
+  `,
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+})
 
 interface Location {
   id: number
@@ -36,18 +50,24 @@ interface MapViewProps {
   zoom?: number
   onMarkerClick?: (locationId: number) => void
   selectedLocationId?: number
+  userLocation?: { latitude: number; longitude: number } | null
+  onRequestLocation?: () => void
 }
 
 const MapView: React.FC<MapViewProps> = ({
   locations,
-  center = [-23.5505, -46.6333], // São Paulo default
-  zoom = 13,
+  center = [-16.1534352, -46.8734666], // Brazil center default
+  zoom = 5, // Show entire Brazil
   onMarkerClick,
   selectedLocationId,
+  userLocation,
+  onRequestLocation,
 }) => {
   const mapRef = useRef<L.Map | null>(null)
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const markersRef = useRef<{ [key: number]: L.Marker }>({})
+  const userMarkerRef = useRef<L.Marker | null>(null)
+  const [mapReady, setMapReady] = useState(false)
 
   const getLocationTypeLabel = (type: string) => {
     const types: { [key: string]: string } = {
@@ -126,6 +146,8 @@ const MapView: React.FC<MapViewProps> = ({
       maxZoom: 19,
     }).addTo(mapRef.current)
 
+    setMapReady(true)
+
     // Listen for visit location events
     const handleVisitLocation = (e: any) => {
       const locationId = e.detail
@@ -164,17 +186,17 @@ const MapView: React.FC<MapViewProps> = ({
       }
     })
 
-    // Fit bounds if we have locations
-    if (locations.length > 0) {
+    // Fit bounds if we have locations and no user location yet
+    if (locations.length > 0 && !userLocation) {
       const bounds = locations
         .filter(loc => loc.latitude && loc.longitude)
         .map(loc => [loc.latitude!, loc.longitude!] as [number, number])
 
       if (bounds.length > 0) {
-        mapRef.current.fitBounds(bounds, { padding: [50, 50] })
+        mapRef.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 })
       }
     }
-  }, [locations, onMarkerClick])
+  }, [locations, onMarkerClick, userLocation])
 
   useEffect(() => {
     if (!mapRef.current || !selectedLocationId) return
@@ -186,9 +208,64 @@ const MapView: React.FC<MapViewProps> = ({
     }
   }, [selectedLocationId])
 
+  // Handle user location marker
+  useEffect(() => {
+    if (!mapRef.current || !mapReady) return
+
+    // Remove existing user marker
+    if (userMarkerRef.current) {
+      userMarkerRef.current.remove()
+      userMarkerRef.current = null
+    }
+
+    // Add user location marker if available
+    if (userLocation) {
+      const { latitude, longitude } = userLocation
+      
+      userMarkerRef.current = L.marker([latitude, longitude], {
+        icon: UserLocationIcon,
+        zIndexOffset: 1000, // Show above other markers
+      })
+        .addTo(mapRef.current)
+        .bindPopup(`
+          <div style="text-align: center; padding: 8px;">
+            <strong style="color: #2563eb;">📍 Você está aqui</strong>
+          </div>
+        `)
+
+      // Center map on user location when first loaded (zoom in more)
+      mapRef.current.setView([latitude, longitude], 13, {
+        animate: true,
+      })
+    }
+  }, [userLocation, mapReady])
+
+  const handleRecenterOnUser = () => {
+    if (mapRef.current && userLocation) {
+      // User location already available, just recenter
+      mapRef.current.setView([userLocation.latitude, userLocation.longitude], 13, {
+        animate: true,
+      })
+      userMarkerRef.current?.openPopup()
+    } else if (onRequestLocation) {
+      // Request location from browser
+      onRequestLocation()
+    }
+  }
+
   return (
     <div className="map-view-container">
       <div ref={mapContainerRef} className="map-view" />
+      {onRequestLocation && (
+        <button
+          className="map-locate-button"
+          onClick={handleRecenterOnUser}
+          title={userLocation ? "Centralizar na minha localização" : "Usar minha localização"}
+          aria-label="Localizar-me"
+        >
+          <Navigation size={20} />
+        </button>
+      )}
     </div>
   )
 }

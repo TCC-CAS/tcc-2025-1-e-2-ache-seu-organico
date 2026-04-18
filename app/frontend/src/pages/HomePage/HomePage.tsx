@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { SearchX } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import { useGeolocation } from '../../hooks/useGeolocation'
 import { locationService } from '../../api/locations'
 import { favoriteService } from '../../api/favorites'
 import { resolveImageUrl } from '../../utils/imageHelpers'
@@ -37,10 +38,13 @@ const HomePage: React.FC = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const toast = useToast()
+  const { coordinates: userLocation, loading: geoLoading, error: geoError, requestLocation } = useGeolocation()
+  
   const [locations, setLocations] = useState<Location[]>([])
   const [filteredLocations, setFilteredLocations] = useState<Location[]>([])
   const [selectedLocationId, setSelectedLocationId] = useState<number | undefined>()
   const [loading, setLoading] = useState(true)
+  const locationRequestedRef = useRef(false)
 
   useEffect(() => {
     fetchLocations()
@@ -152,6 +156,22 @@ const HomePage: React.FC = () => {
     setSelectedLocationId(id)
   }
 
+  const handleRequestLocation = () => {
+    locationRequestedRef.current = true
+    requestLocation()
+    
+    // Check for errors after a short delay to avoid showing errors immediately
+    setTimeout(() => {
+      if (locationRequestedRef.current && geoError && !userLocation) {
+        toast.error('Não foi possível obter sua localização. Verifique as permissões do navegador.')
+        locationRequestedRef.current = false
+      } else if (locationRequestedRef.current && userLocation) {
+        toast.success('Localização obtida!')
+        locationRequestedRef.current = false
+      }
+    }, 2000)
+  }
+
   const handleLogout = () => {
     logout()
     navigate('/login')
@@ -217,6 +237,8 @@ const HomePage: React.FC = () => {
             locations={mapLocations}
             onMarkerClick={setSelectedLocationId}
             selectedLocationId={selectedLocationId}
+            userLocation={userLocation}
+            onRequestLocation={handleRequestLocation}
           />
         </div>
       </div>
