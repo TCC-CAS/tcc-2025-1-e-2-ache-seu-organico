@@ -220,6 +220,40 @@ input:checked + .toggle-slider:before {
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
 }
 
+/* Quick Settings Info */
+.quick-settings-info {
+  padding: 1rem;
+  background: rgba(90, 114, 76, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(90, 114, 76, 0.15);
+  margin-bottom: 0.5rem;
+}
+
+.quick-settings-info p {
+  margin: 0 0 0.75rem 0;
+  color: #5a724c;
+  font-size: 0.9rem;
+}
+
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(135deg, #5a724c 0%, #395628 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.btn-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(90, 114, 76, 0.3);
+}
+
 @media (max-width: 768px) {
   .configuracoes-page {
     padding: 1rem;

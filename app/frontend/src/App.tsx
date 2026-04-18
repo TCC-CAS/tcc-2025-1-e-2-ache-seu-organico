@@ -11,6 +11,8 @@ import MinhasFeirasPage from './pages/MinhasFeiras/MinhasFeirasPage'
 import ProdutosPage from './pages/Produtos/ProdutosPage'
 import EstatisticasPage from './pages/Estatisticas/EstatisticasPage'
 import MensagensPage from './pages/Mensagens/MensagensPage'
+import NotificationsPage from './pages/NotificationsPage'
+import SettingsPage from './pages/SettingsPage'
 import ConfiguracoesPage from './pages/Configuracoes/ConfiguracoesPage'
 import MeuPerfilPage from './pages/MeuPerfil/MeuPerfilPage'
 import './App.css'
@@ -69,6 +71,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute requireAuth>
             <MensagensPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/notificacoes" 
+        element={
+          <ProtectedRoute requireAuth>
+            <NotificationsPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/configuracoes/notificacoes" 
+        element={
+          <ProtectedRoute requireAuth>
+            <SettingsPage />
           </ProtectedRoute>
         } 
       />

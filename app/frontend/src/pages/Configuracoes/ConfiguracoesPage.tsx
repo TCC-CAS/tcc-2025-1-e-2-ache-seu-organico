@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Settings, Save, Bell, Lock, Trash2 } from 'lucide-react'
+import { Settings, Save, Bell, Lock, Trash2, ChevronRight } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
 import './ConfiguracoesPage.css'
 
@@ -59,6 +59,15 @@ const ConfiguracoesPage = () => {
               <h2>Notificações</h2>
             </div>
             <div className="section-content">
+              <div className="quick-settings-info">
+                <p>Configure quais tipos de notificações você deseja receber e como prefere ser notificado.</p>
+                <a href="/configuracoes/notificacoes" className="btn-link">
+                  <Bell size={18} />
+                  Gerenciar Notificações
+                  <ChevronRight size={18} />
+                </a>
+              </div>
+
               <div className="setting-item">
                 <div className="setting-info">
                   <h4>Notificações por E-mail</h4>
