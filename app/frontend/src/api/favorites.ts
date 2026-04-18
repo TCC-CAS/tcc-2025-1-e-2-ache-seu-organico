@@ -1,0 +1,40 @@
+import api from './axios'
+import type { Favorite } from '../types'
+import { ENDPOINTS } from '../utils/constants'
+
+interface PaginatedResponse<T> {
+  count: number
+  next: string | null
+  previous: string | null
+  results: T[]
+}
+
+export const favoriteService = {
+  getAll: async (): Promise<Favorite[] | PaginatedResponse<Favorite>> => {
+    const response = await api.get<PaginatedResponse<Favorite>>(ENDPOINTS.FAVORITES)
+    return response.data
+  },
+
+  toggle: async (locationId: number, note?: string): Promise<{ message: string; favorited: boolean; favorite?: Favorite }> => {
+    const response = await api.post(`${ENDPOINTS.FAVORITES}toggle/`, {
+      location_id: locationId,
+      note: note || '',
+    })
+    return response.data
+  },
+
+  check: async (locationId: number): Promise<{ favorited: boolean }> => {
+    const response = await api.get(`${ENDPOINTS.FAVORITES}check/`, {
+      params: { location_id: locationId },
+    })
+    return response.data
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`${ENDPOINTS.FAVORITES}${id}/`)
+  },
+}
+
+// Aliases para compatibilidade
+export const getFavorites = favoriteService.getAll
+export const removeFavorite = favoriteService.delete

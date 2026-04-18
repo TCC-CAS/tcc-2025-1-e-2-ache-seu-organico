@@ -1,0 +1,187 @@
+.map-view-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.map-view {
+  height: 100%;
+  width: 100%;
+  border-radius: 0;
+  overflow: hidden;
+  opacity: 0.85;
+}
+
+/* Custom popup styling */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(57, 86, 40, 0.25);
+  background: rgba(252, 252, 252, 0.98);
+  padding: 0;
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-family: 'Inter', sans-serif;
+  min-width: 250px;
+}
+
+.leaflet-popup-content b {
+  color: #395628;
+  font-size: 1.05rem;
+}
+
+.leaflet-popup-tip {
+  background: rgba(252, 252, 252, 0.98);
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+  border: 2px solid rgba(90, 114, 76, 0.15);
+}
+
+.map-popup-content {
+  font-family: 'Inter', sans-serif;
+}
+
+.map-popup-content button:hover {
+  background: linear-gradient(135deg, #4a6240 0%, #2d4620 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(57, 86, 40, 0.3);
+}
+
+/* Marker cluster styling (if using clusters later) */
+.marker-cluster-small {
+  background-color: rgba(90, 114, 76, 0.5);
+}
+
+.marker-cluster-small div {
+  background-color: rgba(90, 114, 76, 0.8);
+  color: white;
+  font-weight: bold;
+}
+
+.marker-cluster-medium {
+  background-color: rgba(90, 114, 76, 0.6);
+}
+
+.marker-cluster-medium div {
+  background-color: rgba(90, 114, 76, 0.9);
+  color: white;
+  font-weight: bold;
+}
+
+.marker-cluster-large {
+  background-color: rgba(57, 86, 40, 0.6);
+}
+
+.marker-cluster-large div {
+  background-color: rgba(57, 86, 40, 0.9);
+  color: white;
+  font-weight: bold;
+}
+
+/* User location marker styles */
+.user-location-marker {
+  background: transparent;
+  border: none;
+}
+
+.user-location-marker-inner {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+
+.user-location-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background: #2563eb;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+  z-index: 2;
+}
+
+.user-location-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  background: rgba(37, 99, 235, 0.3);
+  border-radius: 50%;
+  animation: pulse 2s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* Locate me button */
+.map-locate-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 44px;
+  height: 44px;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  color: #2563eb;
+  padding: 0;
+  outline: none;
+}
+
+.map-locate-button:hover:not(:disabled) {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.map-locate-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.map-locate-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.map-locate-button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .map-view {
+    border-radius: 0;
+  }
+  
+  .map-locate-button {
+    bottom: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+  }
+}
