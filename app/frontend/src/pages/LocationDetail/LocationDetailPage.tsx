@@ -24,6 +24,7 @@ import { useToast } from '../../components/Toast'
 import { locationService } from '../../api/locations'
 import { favoriteService } from '../../api/favorites'
 import { chatService } from '../../api/chat'
+import { logLocationView, logWhatsAppClick, logPhoneClick, logDirectionsClick } from '../../api/analytics'
 import { resolveImageUrl } from '../../utils/imageHelpers'
 import type { Location } from '../../types'
 import './LocationDetailPage.css'
@@ -48,6 +49,14 @@ const LocationDetailPage = () => {
       setLoading(true)
       const data = await locationService.getById(Number(id))
       setLocation(data)
+      
+      // Log view activity
+      try {
+        await logLocationView(data.id, data.producer)
+      } catch (error) {
+        // Silent fail - analytics shouldn't block user experience
+        console.debug('Failed to log location view:', error)
+      }
       
       // Verifica se está favoritado
       try {
@@ -97,9 +106,45 @@ const LocationDetailPage = () => {
       return
     }
     
+    // Log WhatsApp click
+    try {
+      logWhatsAppClick(location.id, location.producer)
+    } catch (error) {
+      console.debug('Failed to log WhatsApp click:', error)
+    }
+    
     const phone = location.whatsapp.replace(/\D/g, '')
     const message = encodeURIComponent(`Olá! Vi ${location.name} no Ache Seu Orgânico e gostaria de saber mais informações.`)
     window.open(`https://wa.me/55${phone}?text=${message}`, '_blank')
+  }
+  
+  const handlePhoneClick = () => {
+    if (!location?.phone) return
+    
+    // Log phone click
+    try {
+      logPhoneClick(location.id, location.producer)
+    } catch (error) {
+      console.debug('Failed to log phone click:', error)
+    }
+    
+    window.open(`tel:${location.phone}`, '_self')
+  }
+  
+  const handleDirectionsClick = () => {
+    if (!location?.address) return
+    
+    // Log directions click
+    try {
+      logDirectionsClick(location.id, location.producer)
+    } catch (error) {
+      console.debug('Failed to log directions click:', error)
+    }
+    
+    const { street, number, neighborhood, city, state } = location.address
+    const address = `${street}${number ? ', ' + number : ''}, ${neighborhood}, ${city} - ${state}`
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+    window.open(mapsUrl, '_blank')
   }
 
   const handleSendMessage = async () => {
@@ -301,13 +346,13 @@ const LocationDetailPage = () => {
               <h2>Contato</h2>
               <div className="contact-info">
                 {location.phone && (
-                  <div className="contact-item">
+                  <div className="contact-item" onClick={handlePhoneClick} style={{ cursor: 'pointer' }}>
                     <Phone size={20} className="contact-icon" />
                     <span>{location.phone}</span>
                   </div>
                 )}
                 {location.whatsapp && (
-                  <div className="contact-item">
+                  <div className="contact-item" onClick={handleContact} style={{ cursor: 'pointer' }}>
                     <MessageCircle size={20} className="contact-icon" />
                     <span>{location.whatsapp}</span>
                   </div>
@@ -355,12 +400,7 @@ const LocationDetailPage = () => {
                 </div>
                 <Button
                   variant="secondary"
-                  onClick={() => {
-                    window.open(
-                      `https://www.google.com/maps/search/?api=1&query=${location.address.latitude},${location.address.longitude}`,
-                      '_blank'
-                    )
-                  }}
+                  onClick={handleDirectionsClick}
                   style={{ width: '100%', marginTop: '1rem' }}
                 >
                   <Navigation size={18} style={{ marginRight: '0.5rem' }} />

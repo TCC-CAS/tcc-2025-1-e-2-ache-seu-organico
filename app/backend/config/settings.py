@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'apps.favorites',
     'apps.common',
     'apps.chat',
+    'apps.analytics',
 ]
 
 MIDDLEWARE = [
