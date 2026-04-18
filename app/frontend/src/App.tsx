@@ -1,8 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './components/Toast'
 import PWAPrompt from './components/PWAPrompt'
+import SyncStatus from './components/SyncStatus'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
+import { syncService } from './utils/syncService'
+import { offlineQueue } from './utils/offlineQueue'
 import LoginPage from './pages/Login'
 import RegisterPage from './pages/Register'
 import HomePage from './pages/HomePage'
@@ -112,10 +116,26 @@ function AppRoutes() {
 }
 
 function App() {
+  // Inicializar sistema de sincronização offline
+  useEffect(() => {
+    const initOfflineSync = async () => {
+      try {
+        await offlineQueue.init()
+        syncService.startListeners()
+        console.log('🔄 Sistema de sincronização offline iniciado')
+      } catch (error) {
+        console.error('Erro ao inicializar sincronização offline:', error)
+      }
+    }
+
+    initOfflineSync()
+  }, [])
+
   return (
     <Router>
       <AuthProvider>
         <ToastProvider>
+          <SyncStatus />
           <AppRoutes />
           <PWAPrompt />
         </ToastProvider>

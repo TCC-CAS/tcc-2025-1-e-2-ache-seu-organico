@@ -26,6 +26,7 @@ import { favoriteService } from '../../api/favorites'
 import { chatService } from '../../api/chat'
 import { logLocationView, logWhatsAppClick, logPhoneClick, logDirectionsClick } from '../../api/analytics'
 import { resolveImageUrl } from '../../utils/imageHelpers'
+import { useOfflineFavorite } from '../../hooks/useOfflineFavorite'
 import type { Location } from '../../types'
 import './LocationDetailPage.css'
 
@@ -37,7 +38,7 @@ const LocationDetailPage = () => {
   const [location, setLocation] = useState<Location | null>(null)
   const [loading, setLoading] = useState(true)
   const [isFavorited, setIsFavorited] = useState(false)
-  const [favoriteLoading, setFavoriteLoading] = useState(false)
+  const { toggleFavorite: toggleFavoriteOffline, isProcessing: favoriteLoading } = useOfflineFavorite()
   const [messageLoading, setMessageLoading] = useState(false)
 
   useEffect(() => {
@@ -77,26 +78,17 @@ const LocationDetailPage = () => {
   const handleFavorite = async () => {
     if (!location) return
     
-    try {
-      setFavoriteLoading(true)
-      
-      const result = await favoriteService.toggle(location.id)
-      setIsFavorited(result.favorited)
-      
-      if (result.favorited) {
-        showToast('success', 'Adicionado aos favoritos')
-      } else {
-        showToast('success', 'Removido dos favoritos')
-      }
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        showToast('error', 'Faça login para favoritar')
-        navigate('/login')
-      } else {
-        showToast('error', 'Erro ao favoritar')
-      }
-    } finally {
-      setFavoriteLoading(false)
+    const currentState = isFavorited
+    
+    // Atualizar UI otimisticamente
+    setIsFavorited(!currentState)
+    
+    // Usar hook offline
+    const success = await toggleFavoriteOffline(location.id, currentState)
+    
+    if (!success) {
+      // Reverter se falhou
+      setIsFavorited(currentState)
     }
   }
 

@@ -7,12 +7,14 @@ import Button from '../../components/Button'
 import { useToast } from '../../components/Toast'
 import { favoriteService } from '../../api/favorites'
 import { resolveImageUrl } from '../../utils/imageHelpers'
+import { useOfflineFavorite } from '../../hooks/useOfflineFavorite'
 import type { Favorite } from '../../types'
 import './FavoritosPage.css'
 
 const FavoritosPage = () => {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { toggleFavorite, isProcessing } = useOfflineFavorite()
   const [favorites, setFavorites] = useState<Favorite[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -36,14 +38,16 @@ const FavoritosPage = () => {
     }
   }
 
-  const handleRemoveFavorite = async (favoriteId: number) => {
-    try {
-      await favoriteService.delete(favoriteId)
-      setFavorites(favorites.filter(fav => fav.id !== favoriteId))
-      showToast('success', 'Removido dos favoritos')
-    } catch (err) {
-      console.error('Erro ao remover favorito:', err)
-      showToast('error', 'Erro ao remover favorito')
+  const handleRemoveFavorite = async (favoriteId: number, locationId: number) => {
+    // Atualizar UI otimisticamente
+    setFavorites(prev => prev.filter(fav => fav.id !== favoriteId))
+    
+    // Usar hook offline (passa isFavorited = true para desfavoritar)
+    const success = await toggleFavorite(locationId, true)
+    
+    if (!success) {
+      // Reverter se falhou
+      loadFavorites()
     }
   }
 
@@ -129,7 +133,8 @@ const FavoritosPage = () => {
                     )}
                     <button
                       className="favorite-btn favorited"
-                      onClick={() => handleRemoveFavorite(favorite.id)}
+                      onClick={() => handleRemoveFavorite(favorite.id, location.id)}
+                      disabled={isProcessing}
                       title="Remover dos favoritos"
                     >
                       <Heart size={20} fill="#e53e3e" />

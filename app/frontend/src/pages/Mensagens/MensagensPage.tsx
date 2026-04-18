@@ -10,6 +10,7 @@ import { chatService, ChatWebSocket, type ConversationListItem, type Message as 
 import { favoriteService } from '../../api/favorites'
 import type { Favorite } from '../../types'
 import { STORAGE_KEYS } from '../../utils/constants'
+import { useOfflineMessage } from '../../hooks/useOfflineMessage'
 import './MensagensPage.css'
 
 const MensagensPage = () => {
@@ -192,8 +193,10 @@ const MensagensPage = () => {
     connectWebSocket(conversationId)
   }
 
+  const { sendMessage: sendOfflineMessage, isSending: sendingOffline } = useOfflineMessage()
+
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !selectedConversation || sending) return
+    if (!newMessage.trim() || !selectedConversation || sending || sendingOffline) return
 
     const messageContent = newMessage.trim()
     setNewMessage('')
@@ -201,13 +204,12 @@ const MensagensPage = () => {
     try {
       setSending(true)
       
-      // Enviar via WebSocket para entrega imediata
+      // Enviar via WebSocket para entrega imediata se conectado
       if (wsRef.current && wsRef.current.isConnected()) {
         wsRef.current.sendMessage(messageContent)
       } else {
-        // Fallback para API REST se WebSocket não estiver conectado
-        const message = await chatService.sendMessage(selectedConversation, messageContent)
-        setMessages(prev => [...prev, message])
+        // Usar hook offline (suporta fila quando offline)
+        await sendOfflineMessage(selectedConversation, messageContent)
       }
     } catch (err) {
       console.error('Erro ao enviar mensagem:', err)

@@ -13,7 +13,7 @@ interface LocationCardProps {
   distance?: number
   is_verified: boolean
   products?: string[]
-  onFavorite?: (id: number) => void
+  onFavorite?: (id: number, isFavorited: boolean) => void
   isFavorited?: boolean
   onClick?: () => void
 }
@@ -54,7 +54,7 @@ const LocationCard: React.FC<LocationCardProps> = ({
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation()
-    onFavorite?.(id)
+    onFavorite?.(id, isFavorited)
   }
 
   return (

@@ -6,6 +6,7 @@ import { useGeolocation } from '../../hooks/useGeolocation'
 import { locationService } from '../../api/locations'
 import { favoriteService } from '../../api/favorites'
 import { resolveImageUrl } from '../../utils/imageHelpers'
+import { useOfflineFavorite } from '../../hooks/useOfflineFavorite'
 import Header from '../../components/Header/Header'
 import SearchBar from '../../components/SearchBar/SearchBar'
 import LocationCard from '../../components/LocationCard/LocationCard'
@@ -123,32 +124,35 @@ const HomePage: React.FC = () => {
     setFilteredLocations(filtered)
   }
 
-  const handleFavorite = async (id: number) => {
+  const { toggleFavorite: toggleFavoriteOffline, isProcessing: favProcessing } = useOfflineFavorite()
+
+  const handleFavorite = async (id: number, currentFavoriteState: boolean) => {
     if (!user) {
       toast.error('Faça login para adicionar favoritos')
       navigate('/login')
       return
     }
 
-    try {
-      const result = await favoriteService.toggle(id)
-      
-      // Atualizar o estado local da location
+    // Atualizar UI otimisticamente
+    const newState = !currentFavoriteState
+    setLocations(prev => prev.map(loc => 
+      loc.id === id ? { ...loc, is_favorited: newState } : loc
+    ))
+    setFilteredLocations(prev => prev.map(loc => 
+      loc.id === id ? { ...loc, is_favorited: newState } : loc
+    ))
+    
+    // Usar hook offline
+    const success = await toggleFavoriteOffline(id, currentFavoriteState)
+    
+    if (!success) {
+      // Reverter se falhou
       setLocations(prev => prev.map(loc => 
-        loc.id === id ? { ...loc, is_favorited: result.favorited } : loc
+        loc.id === id ? { ...loc, is_favorited: currentFavoriteState } : loc
       ))
       setFilteredLocations(prev => prev.map(loc => 
-        loc.id === id ? { ...loc, is_favorited: result.favorited } : loc
+        loc.id === id ? { ...loc, is_favorited: currentFavoriteState } : loc
       ))
-      
-      if (result.favorited) {
-        toast.success('Adicionado aos favoritos!')
-      } else {
-        toast.success('Removido dos favoritos')
-      }
-    } catch (error: any) {
-      console.error('Erro ao favoritar:', error)
-      toast.error('Erro ao atualizar favorito')
     }
   }
 

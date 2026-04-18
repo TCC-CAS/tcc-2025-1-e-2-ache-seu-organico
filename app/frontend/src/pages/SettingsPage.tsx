@@ -3,14 +3,15 @@ import { Settings, Bell, MessageCircle, Heart, Save } from 'lucide-react'
 import Layout from '../components/Layout'
 import Loading from '../components/Loading'
 import { useToast } from '../components/Toast'
-import { getNotificationPreferences, updateNotificationPreferences, type NotificationPreferences } from '../api/notifications'
+import { useOfflinePreferences } from '../hooks/useOfflinePreferences'
+import { getNotificationPreferences, type NotificationPreferences } from '../api/notifications'
 import './SettingsPage.css'
 
 const SettingsPage: React.FC = () => {
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const toast = useToast()
+  const { updatePreferences, isUpdating } = useOfflinePreferences()
 
   useEffect(() => {
     fetchPreferences()
@@ -40,16 +41,7 @@ const SettingsPage: React.FC = () => {
   const handleSave = async () => {
     if (!preferences) return
 
-    try {
-      setSaving(true)
-      await updateNotificationPreferences(preferences)
-      toast.success('Preferências salvas com sucesso!')
-    } catch (error) {
-      console.error('Failed to save preferences:', error)
-      toast.error('Erro ao salvar preferências')
-    } finally {
-      setSaving(false)
-    }
+    await updatePreferences(preferences.id, preferences)
   }
 
   if (loading) {
@@ -212,10 +204,10 @@ const SettingsPage: React.FC = () => {
             <button
               className="save-btn"
               onClick={handleSave}
-              disabled={saving}
+              disabled={isUpdating}
             >
               <Save size={18} />
-              {saving ? 'Salvando...' : 'Salvar Preferências'}
+              {isUpdating ? 'Salvando...' : 'Salvar Preferências'}
             </button>
           </div>
         </div>
