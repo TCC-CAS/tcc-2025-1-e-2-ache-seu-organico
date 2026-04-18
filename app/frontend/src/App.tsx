@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './components/Toast'
+import PWAPrompt from './components/PWAPrompt'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import LoginPage from './pages/Login'
 import RegisterPage from './pages/Register'
@@ -116,6 +117,7 @@ function App() {
       <AuthProvider>
         <ToastProvider>
           <AppRoutes />
+          <PWAPrompt />
         </ToastProvider>
       </AuthProvider>
     </Router>
