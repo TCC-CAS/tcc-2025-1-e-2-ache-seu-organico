@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # Local apps
     'apps.users',
     'apps.producers',
+    'apps.billing',
     'apps.locations',
     'apps.products',
     'apps.favorites',
@@ -222,6 +223,11 @@ SPECTACULAR_SETTINGS = {
 
 # Channels Configuration
 ASGI_APPLICATION = 'config.asgi.application'
+
+# Stripe / payments
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
 
 # Channel layers configuration - usando In-Memory para desenvolvimento
 # Para produção, configure Redis

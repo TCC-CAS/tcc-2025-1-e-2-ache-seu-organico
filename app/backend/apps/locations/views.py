@@ -11,6 +11,7 @@ from .serializers import (
     LocationListSerializer,
     LocationImageSerializer
 )
+from apps.billing.utils import get_plan_for_user, raise_plan_limit
 
 
 class LocationViewSet(viewsets.ModelViewSet):
@@ -55,6 +56,13 @@ class LocationViewSet(viewsets.ModelViewSet):
             )
         
         producer_profile = self.request.user.producer_profile
+        plan = get_plan_for_user(self.request.user)
+        current_count = Location.objects.filter(producer=producer_profile).count()
+        limit = plan.max_locations
+
+        if limit is not None and current_count >= limit:
+            raise_plan_limit('feiras', plan, current_count, limit)
+
         serializer.save(producer=producer_profile)
 
     def perform_update(self, serializer):

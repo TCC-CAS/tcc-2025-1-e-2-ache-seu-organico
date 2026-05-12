@@ -3,6 +3,7 @@ from .models import Location, LocationImage
 from apps.common.models import Address
 from apps.products.serializers import ProductListSerializer
 from apps.producers.models import ProducerProfile
+from apps.products.models import Product
 import json
 
 
@@ -140,6 +141,24 @@ class LocationCreateUpdateSerializer(serializers.ModelSerializer):
             instance.products.set(product_ids)
         
         return instance
+
+    def validate_product_ids(self, value):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return value
+
+        producer_profile = request.user.producer_profile if hasattr(request.user, 'producer_profile') else None
+        if producer_profile is None:
+            raise serializers.ValidationError('Você precisa ter um perfil de produtor para associar produtos.')
+
+        owned_ids = set(
+            Product.objects.filter(id__in=value, producer=producer_profile).values_list('id', flat=True)
+        )
+        invalid_ids = [product_id for product_id in value if product_id not in owned_ids]
+        if invalid_ids:
+            raise serializers.ValidationError('Alguns produtos selecionados não pertencem ao seu catálogo.')
+
+        return value
 
 
 class LocationListSerializer(serializers.ModelSerializer):

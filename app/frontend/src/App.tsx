@@ -20,6 +20,7 @@ import NotificationsPage from './pages/NotificationsPage'
 import SettingsPage from './pages/SettingsPage'
 import ConfiguracoesPage from './pages/Configuracoes/ConfiguracoesPage'
 import MeuPerfilPage from './pages/MeuPerfil/MeuPerfilPage'
+import PlanosPage from './pages/Planos'
 import './App.css'
 
 function AppRoutes() {
@@ -32,6 +33,7 @@ function AppRoutes() {
       {/* Rota Home - Liberada para todos */}
       <Route path="/" element={<HomePage />} />
       <Route path="/home" element={<Navigate to="/" />} />
+      <Route path="/planos" element={<PlanosPage />} />
       <Route path="/localizacao/:id" element={<LocationDetailPage />} />
       
       {/* Rotas Autenticadas */}

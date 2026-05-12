@@ -8,8 +8,65 @@ export interface User {
   phone: string
   avatar?: string
   is_active?: boolean
+  billing_plan?: BillingPlan | null
+  billing_subscription?: BillingSubscription | null
+  billing_limits?: BillingLimits | null
   created_at: string
   updated_at: string
+}
+
+export interface BillingLimits {
+  locations: number | null
+  products: number | null
+  unlimited_locations: boolean
+  unlimited_products: boolean
+}
+
+export interface BillingPlan {
+  id: number
+  code: 'FREE' | 'BASIC' | 'PREMIUM'
+  name: string
+  description: string
+  monthly_price: string
+  formatted_price: string
+  limits: BillingLimits
+  boost_results: boolean
+  relevance_priority: boolean
+  priority_verification: boolean
+}
+
+export interface BillingSubscription {
+  id: number
+  status: 'PENDING' | 'ACTIVE' | 'PAST_DUE' | 'CANCELED'
+  starts_at: string | null
+  current_period_start: string | null
+  current_period_end: string | null
+}
+
+export interface SubscriptionPlan {
+  id: number
+  code: 'FREE' | 'BASIC' | 'PREMIUM'
+  name: string
+  description: string
+  monthly_price: string
+  formatted_price: string
+  currency: string
+  limits: BillingLimits
+  boost_results: boolean
+  relevance_priority: boolean
+  priority_verification: boolean
+  benefits: string[]
+  is_active: boolean
+  sort_order: number
+}
+
+export interface BillingSummaryResponse {
+  subscription: BillingSubscription | null
+  summary: {
+    subscription_id: number
+    status: string
+    plan: BillingPlan
+  } | null
 }
 
 export interface ProducerProfile {

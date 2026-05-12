@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Home, Store, Heart, Info, MessageCircle, Bell, User, Settings, LogOut, PackagePlus, BarChart3, LogIn, UserPlus } from 'lucide-react'
+import { Home, Store, Heart, Info, MessageCircle, Bell, User, Settings, LogOut, PackagePlus, BarChart3, LogIn, UserPlus, Crown } from 'lucide-react'
 import { usePermissions } from '../../hooks/usePermissions'
 import Loading from '../Loading'
 import { getRecentNotifications, markAsRead, type Notification } from '../../api/notifications'
@@ -101,6 +101,10 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
           <a href="/" className="nav-link">
             <Home size={18} />
             <span>Início</span>
+          </a>
+          <a href="/planos" className="nav-link">
+            <Crown size={18} />
+            <span>Planos</span>
           </a>
 
           {/* Navegação condicional aparece apenas quando não está carregando */}

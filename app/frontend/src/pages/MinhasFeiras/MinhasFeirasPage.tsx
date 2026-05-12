@@ -6,6 +6,7 @@ import Modal from '../../components/Modal'
 import FairForm, { type FairFormData } from '../../components/FairForm'
 import { useToast } from '../../components/Toast'
 import { locationService, type LocationCreateUpdatePayload } from '../../api/locations'
+import { getPlanLimitErrorData, getApiErrorMessage } from '../../utils/apiErrors'
 import type { LocationListItem, Location } from '../../types'
 import './MinhasFeirasPage.css'
 
@@ -186,28 +187,20 @@ const MinhasFeirasPage = () => {
       await loadLocations()
     } catch (err: any) {
       console.error('Erro ao salvar feira:', err)
+
+      const planLimitError = getPlanLimitErrorData(err)
+      if (planLimitError) {
+        toast.error(planLimitError.message)
+        return
+      }
       
       // Verificar erros específicos
       if (err.response?.status === 400) {
-        // Erros de validação do backend
-        const errors = err.response.data
-        if (typeof errors === 'object') {
-          // Mostrar primeiro erro encontrado
-          const firstError = Object.values(errors)[0]
-          if (Array.isArray(firstError)) {
-            toast.error(firstError[0])
-          } else {
-            toast.error(String(firstError))
-          }
-        } else {
-          toast.error('Dados inválidos. Verifique os campos.')
-        }
+        toast.error(getApiErrorMessage(err, 'Dados inválidos. Verifique os campos.'))
       } else if (err.response?.status === 403) {
-        toast.error('Você não tem permissão para realizar esta ação.')
+        toast.error(getApiErrorMessage(err, 'Você não tem permissão para realizar esta ação.'))
       } else if (err.response?.status === 500) {
         toast.error('Erro no servidor. Tente novamente mais tarde.')
-      } else if (err.message?.includes('limite')) {
-        toast.error('Você atingiu o limite de feiras cadastradas.')
       } else {
         toast.error('Erro ao salvar feira. Tente novamente.')
       }

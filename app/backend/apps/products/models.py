@@ -25,6 +25,12 @@ class Product(TimeStampedModel):
     Organic products available in the platform.
     """
     name = models.CharField(max_length=200, verbose_name='Nome')
+    producer = models.ForeignKey(
+        'producers.ProducerProfile',
+        on_delete=models.CASCADE,
+        related_name='products',
+        verbose_name='Produtor',
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
@@ -40,7 +46,7 @@ class Product(TimeStampedModel):
     class Meta:
         verbose_name = 'Produto'
         verbose_name_plural = 'Produtos'
-        ordering = ['category', 'name']
+        ordering = ['producer', 'category', 'name']
 
     def __str__(self):
         return self.name

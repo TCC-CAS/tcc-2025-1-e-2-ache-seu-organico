@@ -6,6 +6,7 @@ import Modal from '../../components/Modal'
 import ProductForm, { type ProductFormData } from './ProductForm'
 import { useToast } from '../../components/Toast'
 import { productService, type ProductListItem, type Product } from '../../api/products'
+import { getPlanLimitErrorData, getApiErrorMessage } from '../../utils/apiErrors'
 import { resolveImageUrl } from '../../utils/imageHelpers'
 import './ProdutosPage.css'
 
@@ -141,21 +142,17 @@ const ProdutosPage = () => {
       await loadProducts()
     } catch (err: any) {
       console.error('Erro ao salvar produto:', err)
+
+      const planLimitError = getPlanLimitErrorData(err)
+      if (planLimitError) {
+        toast.error(planLimitError.message)
+        return
+      }
       
       if (err.response?.status === 400) {
-        const errors = err.response.data
-        if (typeof errors === 'object') {
-          const firstError = Object.values(errors)[0]
-          if (Array.isArray(firstError)) {
-            toast.error(firstError[0])
-          } else {
-            toast.error(String(firstError))
-          }
-        } else {
-          toast.error('Dados inválidos. Verifique os campos.')
-        }
+        toast.error(getApiErrorMessage(err, 'Dados inválidos. Verifique os campos.'))
       } else if (err.response?.status === 403) {
-        toast.error('Você não tem permissão para realizar esta ação.')
+        toast.error(getApiErrorMessage(err, 'Você não tem permissão para realizar esta ação.'))
       } else {
         toast.error('Erro ao salvar produto. Tente novamente.')
       }

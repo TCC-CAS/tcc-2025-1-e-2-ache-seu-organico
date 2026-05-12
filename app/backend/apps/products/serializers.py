@@ -11,14 +11,15 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
+    producer_name = serializers.CharField(source='producer.business_name', read_only=True)
 
     class Meta:
         model = Product
         fields = (
-            'id', 'name', 'category', 'category_name', 'description',
+            'id', 'name', 'producer', 'producer_name', 'category', 'category_name', 'description',
             'image', 'is_active', 'created_at', 'updated_at'
         )
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'producer', 'producer_name', 'created_at', 'updated_at')
 
 
 class ProductListSerializer(serializers.ModelSerializer):
@@ -26,7 +27,8 @@ class ProductListSerializer(serializers.ModelSerializer):
     Simplified serializer for product lists.
     """
     category_name = serializers.CharField(source='category.name', read_only=True)
+    producer_name = serializers.CharField(source='producer.business_name', read_only=True)
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'category_name', 'image')
+        fields = ('id', 'name', 'producer_name', 'category_name', 'image')
