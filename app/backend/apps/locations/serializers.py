@@ -118,6 +118,7 @@ class LocationCreateUpdateSerializer(serializers.ModelSerializer):
         location = Location.objects.create(address=address, **validated_data)
         
         if product_ids:
+            print(product_ids)
             location.products.set(product_ids)
         
         return location
@@ -149,14 +150,14 @@ class LocationListSerializer(serializers.ModelSerializer):
     producer_details = ProducerMinimalSerializer(source='producer', read_only=True)
     latitude = serializers.DecimalField(
         source='address.latitude',
-        max_digits=9,
-        decimal_places=6,
+        max_digits=20,
+        decimal_places=10,
         read_only=True
     )
     longitude = serializers.DecimalField(
         source='address.longitude',
-        max_digits=9,
-        decimal_places=6,
+        max_digits=20,
+        decimal_places=10,
         read_only=True
     )
     city = serializers.CharField(source='address.city', read_only=True)
