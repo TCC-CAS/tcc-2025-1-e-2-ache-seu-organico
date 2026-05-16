@@ -83,6 +83,14 @@ export interface ProducerProfile {
   instagram: string
   facebook: string
   whatsapp: string
+  legal_name: string
+  cnpj: string
+  state_registration: string
+  municipal_registration: string
+  verification_status: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED'
+  verification_submitted_at: string | null
+  verification_reviewed_at: string | null
+  verification_notes: string
   is_verified: boolean
   is_active: boolean
   created_at: string

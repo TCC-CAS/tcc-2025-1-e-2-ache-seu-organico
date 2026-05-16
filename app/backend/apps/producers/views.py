@@ -2,6 +2,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework import serializers
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from .models import ProducerProfile
 from .serializers import (
@@ -88,3 +90,49 @@ class ProducerProfileViewSet(viewsets.ModelViewSet):
         serializer.save()
         
         return Response(ProducerProfileSerializer(profile).data)
+
+    @action(detail=False, methods=['post'])
+    def submit_verification(self, request):
+        """
+        Submit business data for verification review.
+        POST /api/producers/submit_verification/
+        """
+        try:
+            profile = request.user.producer_profile
+        except ProducerProfile.DoesNotExist:
+            return Response(
+                {'detail': 'Perfil de produtor não encontrado.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        required_fields = {
+            'Razão social': profile.legal_name,
+            'CNPJ': profile.cnpj,
+            'Inscrição estadual': profile.state_registration,
+        }
+        missing = [label for label, value in required_fields.items() if not value]
+        if missing:
+            return Response(
+                {'detail': f'Preencha os campos obrigatórios antes de enviar: {", ".join(missing)}.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if profile.is_verified:
+            return Response(
+                {'detail': 'Esta organização já está verificada.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        profile.verification_status = ProducerProfile.VerificationStatus.PENDING
+        profile.verification_submitted_at = timezone.now()
+        profile.verification_notes = ''
+        profile.save(update_fields=['verification_status', 'verification_submitted_at', 'verification_notes', 'updated_at'])
+
+        return Response(
+            {
+                'detail': 'Dados enviados para verificação com sucesso.',
+                'verification_status': profile.verification_status,
+                'verification_submitted_at': profile.verification_submitted_at,
+            },
+            status=status.HTTP_200_OK,
+        )

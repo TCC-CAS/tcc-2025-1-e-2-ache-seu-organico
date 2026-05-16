@@ -31,7 +31,7 @@ class LocationViewSet(viewsets.ModelViewSet):
     filterset_fields = ['location_type', 'is_verified', 'address__city', 'address__state']
     search_fields = ['name', 'description', 'address__city', 'address__neighborhood', 'producer__business_name']
     ordering_fields = ['created_at', 'name']
-    ordering = ['-created_at']
+    ordering = ['-producer__is_verified', '-created_at']
 
     def get_serializer_class(self):
         if self.action == 'list':

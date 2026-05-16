@@ -88,6 +88,36 @@
   font-size: 0.9rem;
 }
 
+.verification-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.verification-approved {
+  background: rgba(56, 142, 60, 0.14);
+  color: #2e7d32;
+}
+
+.verification-pending {
+  background: #fff8e1;
+  color: #795548;
+}
+
+.verification-rejected {
+  background: rgba(198, 40, 40, 0.12);
+  color: #c62828;
+}
+
+.verification-draft {
+  background: rgba(120, 120, 120, 0.12);
+  color: #616161;
+}
+
 .profile-form {
   display: flex;
   flex-direction: column;
@@ -154,6 +184,85 @@
   color: #999;
   font-size: 0.85rem;
   font-style: italic;
+}
+
+.section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #395628;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.certification-row {
+  display: flex;
+}
+
+.btn-toggle-cert {
+  border: 1px solid rgba(90, 114, 76, 0.35);
+  background: rgba(90, 114, 76, 0.08);
+  color: #395628;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.verification-panel {
+  border: 1px solid rgba(90, 114, 76, 0.25);
+  background: rgba(90, 114, 76, 0.06);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.verification-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.verification-panel-header h3 {
+  margin: 0;
+  color: #2f4624;
+  font-size: 1rem;
+}
+
+.verification-panel p {
+  margin: 0;
+  color: #4d5f44;
+}
+
+.verification-panel small {
+  color: #6d7c64;
+}
+
+.btn-submit-verification {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 0.95rem;
+  cursor: pointer;
+  background: linear-gradient(135deg, #5a724c 0%, #395628 100%);
+  color: #fff;
+  font-weight: 700;
+}
+
+.btn-submit-verification:disabled,
+.btn-save:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .form-actions {

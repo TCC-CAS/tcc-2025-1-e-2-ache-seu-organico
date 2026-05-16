@@ -16,9 +16,16 @@ class ProducerProfileSerializer(serializers.ModelSerializer):
             'id', 'user', 'user_id', 'business_name', 'description',
             'cover_image', 'has_organic_certification', 'certification_details',
             'website', 'instagram', 'facebook', 'whatsapp',
+            'legal_name', 'cnpj', 'state_registration', 'municipal_registration',
+            'verification_status', 'verification_submitted_at', 'verification_reviewed_at',
+            'verification_notes',
             'is_verified', 'is_active', 'created_at', 'updated_at'
         )
-        read_only_fields = ('id', 'user', 'user_id', 'is_verified', 'created_at', 'updated_at')
+        read_only_fields = (
+            'id', 'user', 'user_id', 'is_verified', 'verification_status',
+            'verification_submitted_at', 'verification_reviewed_at', 'verification_notes',
+            'created_at', 'updated_at',
+        )
 
 
 class ProducerProfileCreateSerializer(serializers.ModelSerializer):
@@ -30,7 +37,8 @@ class ProducerProfileCreateSerializer(serializers.ModelSerializer):
         fields = (
             'business_name', 'description', 'cover_image',
             'has_organic_certification', 'certification_details',
-            'website', 'instagram', 'facebook', 'whatsapp'
+            'website', 'instagram', 'facebook', 'whatsapp',
+            'legal_name', 'cnpj', 'state_registration', 'municipal_registration',
         )
 
 
@@ -45,5 +53,5 @@ class ProducerProfileListSerializer(serializers.ModelSerializer):
         model = ProducerProfile
         fields = (
             'id', 'user_name', 'user_email', 'business_name',
-            'cover_image', 'has_organic_certification', 'is_verified'
+            'cover_image', 'has_organic_certification', 'is_verified', 'verification_status'
         )
