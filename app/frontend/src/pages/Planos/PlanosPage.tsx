@@ -18,6 +18,35 @@ const PlanosPage = () => {
   const [checkoutLoadingId, setCheckoutLoadingId] = useState<number | null>(null)
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const status = params.get('status')
+
+    if (!status) {
+      return
+    }
+
+    if (status === 'success') {
+      toast.success('Pagamento confirmado! Seu plano foi atualizado.')
+      if (user) {
+        billingService
+          .getMe()
+          .then(setBilling)
+          .catch(() => {
+            // Falha silenciosa: a tela continua funcional e pode ser atualizada no próximo reload.
+          })
+      }
+    } else if (status === 'pending') {
+      toast.info('Pagamento em processamento. Atualize em instantes para conferir o status.')
+    } else if (status === 'cancel') {
+      toast.info('Pagamento cancelado. Você pode tentar novamente quando quiser.')
+    } else {
+      toast.error('Não foi possível confirmar o pagamento. Tente novamente.')
+    }
+
+    window.history.replaceState({}, document.title, window.location.pathname)
+  }, [toast, user])
+
+  useEffect(() => {
     const load = async () => {
       try {
         setLoading(true)

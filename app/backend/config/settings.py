@@ -224,10 +224,14 @@ SPECTACULAR_SETTINGS = {
 # Channels Configuration
 ASGI_APPLICATION = 'config.asgi.application'
 
-# Stripe / payments
+# Payments
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
 STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+INFINITEPAY_HANDLE = config('INFINITEPAY_HANDLE', default='$andre-de-z95')
+INFINITEPAY_API_BASE_URL = config('INFINITEPAY_API_BASE_URL', default='https://api.checkout.infinitepay.io')
+INFINITEPAY_WEBHOOK_URL = config('INFINITEPAY_WEBHOOK_URL', default='')
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+BACKEND_URL = config('BACKEND_URL', default='http://localhost:8000')
 
 # Channel layers configuration - usando In-Memory para desenvolvimento
 # Para produção, configure Redis

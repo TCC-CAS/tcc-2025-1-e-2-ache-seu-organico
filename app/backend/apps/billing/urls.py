@@ -1,7 +1,13 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import CreateCheckoutSessionView, CurrentSubscriptionView, StripeWebhookView, SubscriptionPlanViewSet
+from .views import (
+    CheckoutCallbackView,
+    CreateCheckoutSessionView,
+    CurrentSubscriptionView,
+    InfinitePayWebhookView,
+    SubscriptionPlanViewSet,
+)
 
 
 router = DefaultRouter()
@@ -11,5 +17,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('me/', CurrentSubscriptionView.as_view(), name='billing-me'),
     path('checkout/', CreateCheckoutSessionView.as_view(), name='billing-checkout'),
-    path('webhook/stripe/', StripeWebhookView.as_view(), name='billing-stripe-webhook'),
+    path('checkout/callback/', CheckoutCallbackView.as_view(), name='billing-checkout-callback'),
+    path('webhook/infinitepay/', InfinitePayWebhookView.as_view(), name='billing-infinitepay-webhook'),
 ]
