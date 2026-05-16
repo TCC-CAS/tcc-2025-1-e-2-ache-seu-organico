@@ -71,6 +71,11 @@ class Location(TimeStampedModel):
     
     is_active = models.BooleanField(default=True, verbose_name='Ativo')
     is_verified = models.BooleanField(default=False, verbose_name='Verificado')
+    suspended_by_billing = models.BooleanField(
+        default=False,
+        verbose_name='Suspenso por faturamento',
+        help_text='Definido automaticamente quando o plano expira e o limite de locais é excedido.',
+    )
 
     class Meta:
         verbose_name = 'Localização'

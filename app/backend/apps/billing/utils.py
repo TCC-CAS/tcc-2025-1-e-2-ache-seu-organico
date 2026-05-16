@@ -53,7 +53,7 @@ def get_subscription_for_user(user):
 
 def get_plan_for_user(user):
     subscription = get_subscription_for_user(user)
-    if subscription:
+    if subscription and subscription.is_active:
         return subscription.plan
 
     return ensure_default_plans()['free']
@@ -89,3 +89,30 @@ def get_subscription_summary(user):
 
 def raise_plan_limit(resource_label, plan, current_count, limit):
     raise PlanLimitExceeded(resource_label, plan, current_count, limit)
+
+
+def suspend_excess_locations(producer_profile, free_plan):
+    """Suspend locations that exceed the plan limit after expiration.
+
+    Keeps the oldest *limit* locations active; marks the rest as suspended.
+    If the free plan has no location limit (None), nothing is suspended.
+    """
+    from apps.locations.models import Location  # local import to avoid circular
+
+    limit = free_plan.max_locations
+    if limit is None:
+        return
+
+    locations = list(
+        Location.objects.filter(producer=producer_profile, is_active=True)
+        .order_by('created_at')
+        .values_list('id', flat=True)
+    )
+    keep_ids = set(locations[:limit])
+    excess_ids = set(locations[limit:])
+
+    if excess_ids:
+        Location.objects.filter(id__in=excess_ids).update(suspended_by_billing=True)
+    # Unsuspend if re-activating (called after payment too)
+    if keep_ids:
+        Location.objects.filter(id__in=keep_ids).update(suspended_by_billing=False)

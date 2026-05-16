@@ -1,3 +1,4 @@
+from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 
 from django.db import models
@@ -22,6 +23,11 @@ class SubscriptionPlan(TimeStampedModel):
     boost_results = models.BooleanField(default=False)
     relevance_priority = models.BooleanField(default=False)
     priority_verification = models.BooleanField(default=False)
+    # How many months a single payment covers (1 = monthly, 12 = annual)
+    billing_cycle_months = models.PositiveSmallIntegerField(
+        default=1,
+        help_text='Meses cobertos por um único pagamento (1=mensal, 12=anual)',
+    )
     stripe_product_id = models.CharField(max_length=255, blank=True)
     stripe_price_id = models.CharField(max_length=255, blank=True)
     is_active = models.BooleanField(default=True)
@@ -95,6 +101,7 @@ class SubscriptionPlan(TimeStampedModel):
                 'boost_results': True,
                 'relevance_priority': True,
                 'priority_verification': True,
+                'billing_cycle_months': 12,
                 'sort_order': 3,
             },
         )
@@ -138,11 +145,33 @@ class ProducerSubscription(TimeStampedModel):
         return f'{self.producer.business_name} - {self.plan.name}'
 
     @property
+    def is_expired(self):
+        """True when current_period_end is set and has already passed."""
+        return (
+            self.current_period_end is not None
+            and self.current_period_end < timezone.now()
+        )
+
+    @property
     def is_active(self):
-        return self.status == self.Status.ACTIVE and self.plan.is_active
+        return (
+            self.status == self.Status.ACTIVE
+            and self.plan.is_active
+            and not self.is_expired
+        )
 
     def activate(self):
+        now = timezone.now()
         self.status = self.Status.ACTIVE
         if self.starts_at is None:
-            self.starts_at = timezone.now()
-        self.save(update_fields=['status', 'starts_at', 'updated_at'])
+            self.starts_at = now
+        self.current_period_start = now
+        self.current_period_end = now + relativedelta(months=self.plan.billing_cycle_months)
+        self.save(update_fields=[
+            'status', 'starts_at', 'current_period_start', 'current_period_end', 'updated_at',
+        ])
+
+    def expire(self):
+        """Mark the subscription as past-due (expired without renewal)."""
+        self.status = self.Status.PAST_DUE
+        self.save(update_fields=['status', 'updated_at'])

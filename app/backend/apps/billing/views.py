@@ -21,7 +21,7 @@ from .serializers import (
     ProducerSubscriptionSerializer,
     SubscriptionPlanSerializer,
 )
-from .utils import ensure_default_plans, get_subscription_summary
+from .utils import ensure_default_plans, get_subscription_summary, suspend_excess_locations
 
 
 def _normalize_handle(raw_handle: str) -> str:
@@ -97,12 +97,12 @@ def _activate_subscription_from_order(order_nsu: str, transaction_nsu: str = '',
         defaults={'plan': plan, 'status': ProducerSubscription.Status.ACTIVE},
     )
     subscription.plan = plan
-    subscription.status = ProducerSubscription.Status.ACTIVE
-    subscription.starts_at = subscription.starts_at or timezone.now()
-    subscription.current_period_start = subscription.current_period_start or timezone.now()
     subscription.stripe_subscription_id = transaction_nsu or subscription.stripe_subscription_id
     subscription.stripe_checkout_session_id = slug or subscription.stripe_checkout_session_id
-    subscription.save()
+    subscription.save(update_fields=['plan', 'stripe_subscription_id', 'stripe_checkout_session_id', 'updated_at'])
+    subscription.activate()
+    # Unsuspend locations that were previously suspended (payment renewed)
+    suspend_excess_locations(producer, plan)
     return True
 
 
@@ -186,13 +186,16 @@ class CreateCheckoutSessionView(APIView):
             )
 
         order_nsu = f'aso-{producer_profile.id}-{plan.id}-{uuid4().hex[:12]}'
+        # Premium é cobrado anualmente (x12); demais planos são mensais
+        charge_amount = Decimal(plan.monthly_price) * plan.billing_cycle_months
+        cycle_label = 'Anual' if plan.billing_cycle_months == 12 else 'Mensal'
         payload = {
             'handle': handle,
             'items': [
                 {
                     'quantity': 1,
-                    'price': int(Decimal(plan.monthly_price) * 100),
-                    'description': f'Assinatura {plan.name} - Ache Seu Organico',
+                    'price': int(charge_amount * 100),
+                    'description': f'Assinatura {plan.name} ({cycle_label}) - Ache Seu Organico',
                 }
             ],
             'order_nsu': order_nsu,

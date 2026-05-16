@@ -58,6 +58,7 @@ export interface SubscriptionPlan {
   benefits: string[]
   is_active: boolean
   sort_order: number
+  billing_cycle_months: number
 }
 
 export interface BillingSummaryResponse {
@@ -145,6 +146,7 @@ export interface Location {
   whatsapp: string
   is_active: boolean
   is_verified: boolean
+  suspended_by_billing: boolean
   created_at: string
   updated_at: string
 }
@@ -170,6 +172,7 @@ export interface LocationListItem {
   products: Product[]
   is_verified: boolean
   is_favorited?: boolean
+  suspended_by_billing?: boolean
 }
 
 export interface Favorite {

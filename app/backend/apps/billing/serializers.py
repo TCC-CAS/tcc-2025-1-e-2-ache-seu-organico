@@ -13,7 +13,7 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'code', 'name', 'description', 'monthly_price', 'formatted_price',
             'currency', 'limits', 'boost_results', 'relevance_priority',
-            'priority_verification', 'benefits', 'is_active', 'sort_order',
+            'priority_verification', 'benefits', 'billing_cycle_months', 'is_active', 'sort_order',
         )
 
     def get_formatted_price(self, obj):

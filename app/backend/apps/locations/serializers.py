@@ -45,9 +45,9 @@ class LocationSerializer(serializers.ModelSerializer):
             'id', 'producer', 'producer_name', 'producer_details', 'name', 'location_type',
             'description', 'address', 'products', 'main_image', 'images',
             'operation_days', 'operation_hours', 'phone', 'whatsapp',
-            'is_active', 'is_verified', 'created_at', 'updated_at'
+            'is_active', 'is_verified', 'suspended_by_billing', 'created_at', 'updated_at'
         )
-        read_only_fields = ('id', 'producer', 'is_verified', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'producer', 'is_verified', 'suspended_by_billing', 'created_at', 'updated_at')
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
