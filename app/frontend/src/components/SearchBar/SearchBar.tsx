@@ -69,7 +69,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
               <option value="">Todos</option>
               <option value="FAIR">Feira</option>
               <option value="STORE">Loja</option>
-              <option value="FARM">Propriedade</option>
+              <option value="FARM">Fazenda/Sítio</option>
+              <option value="DELIVERY">Apenas Delivery</option>
+              <option value="OTHER">Outro</option>
             </select>
           </div>
 

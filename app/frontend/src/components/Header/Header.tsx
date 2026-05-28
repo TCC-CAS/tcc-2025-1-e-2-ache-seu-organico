@@ -110,7 +110,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
           {/* Navegação condicional aparece apenas quando não está carregando */}
           {!loading && !isAuthenticated && (
             <>
-              <a href="/sobre" className="nav-link">
+              <a href="/sobre-nós" className="nav-link">
                 <Info size={18} />
                 <span>Sobre nós</span>
               </a>
@@ -128,7 +128,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
                 <Heart size={18} />
                 <span>Favoritos</span>
               </a>
-              <a href="/sobre" className="nav-link">
+              <a href="/sobre-nós" className="nav-link">
                 <Info size={18} />
                 <span>Sobre nós</span>
               </a>

@@ -16,6 +16,7 @@ const RegisterPage: React.FC = () => {
     user_type: 'CONSUMER' as 'CONSUMER' | 'PRODUCER',
     phone: '',
   })
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -37,6 +38,11 @@ const RegisterPage: React.FC = () => {
 
     if (formData.password.length < 8) {
       setError('A senha deve ter no mínimo 8 caracteres.')
+      return
+    }
+
+    if (!acceptedPolicies) {
+      setError('Você precisa aceitar os termos de uso e as políticas de privacidade.')
       return
     }
 
@@ -159,6 +165,19 @@ const RegisterPage: React.FC = () => {
               disabled={loading}
             />
           </div>
+
+          <label className="auth-consent">
+            <input
+              type="checkbox"
+              checked={acceptedPolicies}
+              onChange={(e) => setAcceptedPolicies(e.target.checked)}
+              disabled={loading}
+            />
+            <span>
+              Li e aceito os <Link to="/termos-de-uso">termos de uso</Link> e as{' '}
+              <Link to="/politicas-de-privacidade">políticas de privacidade</Link>.
+            </span>
+          </label>
 
           <Button type="submit" fullWidth loading={loading}>
             Cadastrar

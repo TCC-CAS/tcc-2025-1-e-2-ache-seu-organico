@@ -9,12 +9,19 @@ const LoginPage: React.FC = () => {
   const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (!acceptedPolicies) {
+      setError('Você precisa aceitar os termos de uso e as políticas de privacidade.')
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -57,6 +64,19 @@ const LoginPage: React.FC = () => {
             required
             disabled={loading}
           />
+
+          <label className="auth-consent">
+            <input
+              type="checkbox"
+              checked={acceptedPolicies}
+              onChange={(e) => setAcceptedPolicies(e.target.checked)}
+              disabled={loading}
+            />
+            <span>
+              Li e aceito os <Link to="/termos-de-uso">termos de uso</Link> e as{' '}
+              <Link to="/politicas-de-privacidade">políticas de privacidade</Link>.
+            </span>
+          </label>
 
           <Button type="submit" fullWidth loading={loading}>
             Entrar

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Store, Plus, MapPin, Edit, Trash2, Eye } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
 import Loading from '../../components/Loading'
@@ -20,6 +21,7 @@ const MinhasFeirasPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string>('ALL')
   const toast = useToast()
+  const navigate = useNavigate()
 
   useEffect(() => {
     loadLocations()
@@ -98,7 +100,7 @@ const MinhasFeirasPage = () => {
   }
 
   const handleView = (locationId: number) => {
-    console.log('Ver feira:', locationId)
+    navigate(`/localizacao/${locationId}`)
   }
 
   const handleSubmitForm = async (data: FairFormData) => {

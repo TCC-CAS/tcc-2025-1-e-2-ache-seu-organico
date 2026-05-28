@@ -21,6 +21,7 @@ import SettingsPage from './pages/SettingsPage'
 import ConfiguracoesPage from './pages/Configuracoes/ConfiguracoesPage'
 import MeuPerfilPage from './pages/MeuPerfil/MeuPerfilPage'
 import PlanosPage from './pages/Planos'
+import { SobreNosPage, PoliticasPrivacidadePage, TermosUsoPage } from './pages/Legal'
 import './App.css'
 
 function AppRoutes() {
@@ -35,6 +36,11 @@ function AppRoutes() {
       <Route path="/home" element={<Navigate to="/" />} />
       <Route path="/planos" element={<PlanosPage />} />
       <Route path="/localizacao/:id" element={<LocationDetailPage />} />
+      <Route path="/sobre-nós" element={<SobreNosPage />} />
+      <Route path="/sobre-nos" element={<Navigate to="/sobre-nós" />} />
+      <Route path="/sobre" element={<Navigate to="/sobre-nós" />} />
+      <Route path="/politicas-de-privacidade" element={<PoliticasPrivacidadePage />} />
+      <Route path="/termos-de-uso" element={<TermosUsoPage />} />
       
       {/* Rotas Autenticadas */}
       <Route 
