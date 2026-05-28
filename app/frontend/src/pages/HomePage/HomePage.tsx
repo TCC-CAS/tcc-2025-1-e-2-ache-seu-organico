@@ -32,6 +32,7 @@ interface Location {
   main_image?: string
   is_verified: boolean
   is_favorited?: boolean
+  product_count: number
   products?: Product[]
 }
 
@@ -75,6 +76,7 @@ const HomePage: React.FC = () => {
         main_image: loc.main_image || undefined,
         is_verified: loc.is_verified,
         is_favorited: loc.is_favorited || false,
+        product_count: loc.product_count ?? loc.products?.length ?? 0,
         products: loc.products || []
       }))
       
@@ -191,7 +193,7 @@ const HomePage: React.FC = () => {
     city: loc.address.city,
     state: loc.address.state,
     main_image: resolveImageUrl(loc.main_image) || undefined,
-    product_count: 0, // Não disponível no map_data
+    product_count: loc.product_count,
     is_verified: loc.is_verified
   }))
 

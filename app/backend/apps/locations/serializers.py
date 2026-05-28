@@ -38,16 +38,20 @@ class LocationSerializer(serializers.ModelSerializer):
     products = ProductListSerializer(many=True, read_only=True)
     producer_name = serializers.CharField(source='producer.business_name', read_only=True)
     producer_details = ProducerMinimalSerializer(source='producer', read_only=True)
+    product_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Location
         fields = (
             'id', 'producer', 'producer_name', 'producer_details', 'name', 'location_type',
-            'description', 'address', 'products', 'main_image', 'images',
+            'description', 'address', 'products', 'product_count', 'main_image', 'images',
             'operation_days', 'operation_hours', 'phone', 'whatsapp',
             'is_active', 'is_verified', 'suspended_by_billing', 'created_at', 'updated_at'
         )
         read_only_fields = ('id', 'producer', 'is_verified', 'suspended_by_billing', 'created_at', 'updated_at')
+
+    def get_product_count(self, obj):
+        return obj.products.count()
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
@@ -191,7 +195,7 @@ class LocationListSerializer(serializers.ModelSerializer):
     )
     city = serializers.CharField(source='address.city', read_only=True)
     state = serializers.CharField(source='address.state', read_only=True)
-    product_count = serializers.IntegerField(source='products.count', read_only=True)
+    product_count = serializers.SerializerMethodField()
     products = ProductListSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
 
@@ -200,8 +204,11 @@ class LocationListSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'location_type', 'producer_name', 'producer_details', 'main_image',
             'latitude', 'longitude', 'city', 'state', 'product_count', 'products',
-            'is_verified', 'is_favorited'
+            'is_verified', 'is_favorited', 'suspended_by_billing'
         )
+
+    def get_product_count(self, obj):
+        return obj.products.count()
     
     def get_is_favorited(self, obj):
         """

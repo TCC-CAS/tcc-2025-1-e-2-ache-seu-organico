@@ -96,7 +96,7 @@ class LocationViewSet(viewsets.ModelViewSet):
         ).prefetch_related('products', 'images', 'favorited_by').filter(
             producer=producer_profile, is_active=True
         )
-        serializer = LocationSerializer(locations, many=True, context={'request': request})
+        serializer = LocationListSerializer(locations, many=True, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
