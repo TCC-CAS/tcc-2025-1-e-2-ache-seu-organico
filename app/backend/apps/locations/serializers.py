@@ -89,14 +89,26 @@ class LocationCreateUpdateSerializer(serializers.ModelSerializer):
             'phone', 'whatsapp'
         )
 
+    def _normalize_multipart_data(self, data):
+        if not hasattr(data, 'getlist'):
+            return data.copy() if hasattr(data, 'copy') else data
+
+        normalized_data = {}
+        for key in data.keys():
+            values = data.getlist(key)
+            normalized_data[key] = values if len(values) > 1 else values[0]
+
+        return normalized_data
+
     def to_internal_value(self, data):
         """
         Handle address field sent as JSON string (for FormData uploads)
         """
+        data = self._normalize_multipart_data(data)
+
         # Se address vier como string JSON (FormData), parsear
         if isinstance(data.get('address'), str):
             try:
-                data = data.copy()
                 data['address'] = json.loads(data['address'])
             except json.JSONDecodeError:
                 raise serializers.ValidationError({'address': 'Formato de endereço inválido'})
@@ -104,7 +116,6 @@ class LocationCreateUpdateSerializer(serializers.ModelSerializer):
         # Se product_ids vier como string JSON (FormData), parsear
         if isinstance(data.get('product_ids'), str):
             try:
-                data = data.copy()
                 data['product_ids'] = json.loads(data['product_ids'])
             except json.JSONDecodeError:
                 raise serializers.ValidationError({'product_ids': 'Formato de IDs de produtos inválido'})
@@ -119,7 +130,6 @@ class LocationCreateUpdateSerializer(serializers.ModelSerializer):
         location = Location.objects.create(address=address, **validated_data)
         
         if product_ids:
-            print(product_ids)
             location.products.set(product_ids)
         
         return location
