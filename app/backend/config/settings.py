@@ -233,20 +233,29 @@ INFINITEPAY_WEBHOOK_URL = config('INFINITEPAY_WEBHOOK_URL', default='')
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
 BACKEND_URL = config('BACKEND_URL', default='http://localhost:8000')
 
-# Channel layers configuration - usando In-Memory para desenvolvimento
-# Para produção, configure Redis
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer'
-    }
-}
+# Channel layers
+REDIS_URL = config('REDIS_URL', default='redis://127.0.0.1:6379/0')
+USE_REDIS_CHANNEL_LAYER = config(
+    'USE_REDIS_CHANNEL_LAYER',
+    default=not DEBUG,
+    cast=bool,
+)
 
-# Para produção com Redis, use:
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [('127.0.0.1', 6379)],
-#         },
-#     },
-# }
+if USE_REDIS_CHANNEL_LAYER:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                'hosts': [REDIS_URL],
+                'capacity': config('CHANNEL_LAYER_CAPACITY', default=1000, cast=int),
+                'expiry': config('CHANNEL_LAYER_EXPIRY', default=60, cast=int),
+                'group_expiry': config('CHANNEL_LAYER_GROUP_EXPIRY', default=86400, cast=int),
+            },
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }

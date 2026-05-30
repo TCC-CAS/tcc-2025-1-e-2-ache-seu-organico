@@ -214,6 +214,31 @@ DB_HOST=localhost
 DB_PORT=5432
 ```
 
+## 🔌 WebSocket em produção com Redis
+
+O chat usa Django Channels. Em desenvolvimento, com `DEBUG=True`, o backend usa
+`InMemoryChannelLayer` por padrão. Em produção, configure Redis para que as
+mensagens WebSocket funcionem corretamente entre múltiplos processos ou
+instâncias ASGI.
+
+```env
+DEBUG=False
+USE_REDIS_CHANNEL_LAYER=True
+REDIS_URL=redis://usuario:senha@redis-host:6379/0
+```
+
+Se o Redis não tiver autenticação:
+
+```env
+REDIS_URL=redis://redis-host:6379/0
+```
+
+Também configure o frontend com a URL WebSocket pública:
+
+```env
+VITE_WS_BASE_URL=wss://seu-dominio.com
+```
+
 ## 📄 Licença
 
 Este projeto é parte do TCC do curso Senac.
