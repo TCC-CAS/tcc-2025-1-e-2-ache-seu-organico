@@ -34,8 +34,18 @@ interface Location {
   is_verified: boolean
   is_favorited?: boolean
   product_count: number
+  view_count: number
+  favorite_count: number
   products?: Product[]
 }
+
+interface LocationFilters {
+  type: string
+  city: string
+  certified: boolean
+}
+
+type SortOption = '' | 'name' | 'rating'
 
 const normalizeSearchText = (value?: string | number | null) =>
   String(value ?? '')
@@ -45,6 +55,36 @@ const normalizeSearchText = (value?: string | number | null) =>
     .trim()
 
 const onlyDigits = (value?: string | number | null) => String(value ?? '').replace(/\D/g, '')
+
+const compareByBusinessPriority = (a: Location, b: Location) => {
+  const verifiedDiff = Number(b.is_verified) - Number(a.is_verified)
+  if (verifiedDiff !== 0) return verifiedDiff
+
+  const viewsDiff = b.view_count - a.view_count
+  if (viewsDiff !== 0) return viewsDiff
+
+  const favoritesDiff = b.favorite_count - a.favorite_count
+  if (favoritesDiff !== 0) return favoritesDiff
+
+  return a.name.localeCompare(b.name, 'pt-BR')
+}
+
+const sortLocations = (locations: Location[], sort: SortOption) => {
+  const sorted = [...locations]
+
+  if (sort === 'name') {
+    return sorted.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
+  }
+
+  if (sort === 'rating') {
+    return sorted.sort((a, b) => {
+      const favoritesDiff = b.favorite_count - a.favorite_count
+      return favoritesDiff !== 0 ? favoritesDiff : compareByBusinessPriority(a, b)
+    })
+  }
+
+  return sorted.sort(compareByBusinessPriority)
+}
 
 const HomePage: React.FC = () => {
   const { user, logout } = useAuth()
@@ -56,11 +96,60 @@ const HomePage: React.FC = () => {
   const [filteredLocations, setFilteredLocations] = useState<Location[]>([])
   const [selectedLocationId, setSelectedLocationId] = useState<number | undefined>()
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filters, setFilters] = useState<LocationFilters>({
+    type: '',
+    city: '',
+    certified: false,
+  })
+  const [sortOption, setSortOption] = useState<SortOption>('')
   const locationRequestedRef = useRef(false)
 
   useEffect(() => {
     fetchLocations()
   }, [user])
+
+  useEffect(() => {
+    const normalizedQuery = normalizeSearchText(searchQuery)
+    const queryDigits = onlyDigits(searchQuery)
+    const normalizedCity = normalizeSearchText(filters.city)
+
+    const nextLocations = locations.filter(loc => {
+      if (filters.type && loc.location_type !== filters.type) {
+        return false
+      }
+
+      if (filters.certified && !loc.is_verified) {
+        return false
+      }
+
+      if (normalizedCity && !normalizeSearchText(loc.address.city).includes(normalizedCity)) {
+        return false
+      }
+
+      if (!normalizedQuery) {
+        return true
+      }
+
+      const searchableFields = [
+        loc.name,
+        loc.producer.business_name,
+        loc.address.city,
+        loc.address.state,
+        loc.address.zip_code,
+        ...((loc.products || []).map(product => product.name)),
+      ]
+
+      const matchesText = searchableFields.some(field =>
+        normalizeSearchText(field).includes(normalizedQuery)
+      )
+      const matchesZipCode = Boolean(queryDigits) && onlyDigits(loc.address.zip_code).includes(queryDigits)
+
+      return matchesText || matchesZipCode
+    })
+
+    setFilteredLocations(sortLocations(nextLocations, sortOption))
+  }, [locations, searchQuery, filters, sortOption])
 
   const fetchLocations = async () => {
     try {
@@ -88,68 +177,31 @@ const HomePage: React.FC = () => {
         is_verified: loc.is_verified,
         is_favorited: loc.is_favorited || false,
         product_count: loc.product_count ?? loc.products?.length ?? 0,
+        view_count: loc.view_count ?? 0,
+        favorite_count: loc.favorite_count ?? 0,
         products: loc.products || []
       }))
       
       setLocations(mappedLocations)
-      setFilteredLocations(mappedLocations)
     } catch (error) {
       console.error('Erro ao carregar locais:', error)
       // Em caso de erro, continuar sem dados
       setLocations([])
-      setFilteredLocations([])
     } finally {
       setLoading(false)
     }
   }
 
   const handleSearch = (query: string) => {
-    if (!query.trim()) {
-      setFilteredLocations(locations)
-      return
-    }
-
-    const normalizedQuery = normalizeSearchText(query)
-    const queryDigits = onlyDigits(query)
-
-    const filtered = locations.filter(loc => {
-      const searchableFields = [
-        loc.name,
-        loc.producer.business_name,
-        loc.address.city,
-        loc.address.state,
-        loc.address.zip_code,
-        ...((loc.products || []).map(product => product.name)),
-      ]
-
-      const matchesText = searchableFields.some(field =>
-        normalizeSearchText(field).includes(normalizedQuery)
-      )
-      const matchesZipCode = Boolean(queryDigits) && onlyDigits(loc.address.zip_code).includes(queryDigits)
-
-      return matchesText || matchesZipCode
-    })
-    setFilteredLocations(filtered)
+    setSearchQuery(query)
   }
 
-  const handleFilterChange = (filters: any) => {
-    let filtered = [...locations]
+  const handleFilterChange = (nextFilters: LocationFilters) => {
+    setFilters(nextFilters)
+  }
 
-    if (filters.type) {
-      filtered = filtered.filter(loc => loc.location_type === filters.type)
-    }
-
-    if (filters.city) {
-      filtered = filtered.filter(loc =>
-        loc.address.city.toLowerCase().includes(filters.city.toLowerCase())
-      )
-    }
-
-    if (filters.certified) {
-      filtered = filtered.filter(loc => loc.is_verified)
-    }
-
-    setFilteredLocations(filtered)
+  const handleSortChange = (sort: string) => {
+    setSortOption(sort as SortOption)
   }
 
   const { toggleFavorite: toggleFavoriteOffline, isProcessing: favProcessing } = useOfflineFavorite()
@@ -164,10 +216,13 @@ const HomePage: React.FC = () => {
     // Atualizar UI otimisticamente
     const newState = !currentFavoriteState
     setLocations(prev => prev.map(loc => 
-      loc.id === id ? { ...loc, is_favorited: newState } : loc
-    ))
-    setFilteredLocations(prev => prev.map(loc => 
-      loc.id === id ? { ...loc, is_favorited: newState } : loc
+      loc.id === id
+        ? {
+          ...loc,
+          is_favorited: newState,
+          favorite_count: Math.max(0, loc.favorite_count + (newState ? 1 : -1)),
+        }
+        : loc
     ))
     
     // Usar hook offline
@@ -176,10 +231,13 @@ const HomePage: React.FC = () => {
     if (!success) {
       // Reverter se falhou
       setLocations(prev => prev.map(loc => 
-        loc.id === id ? { ...loc, is_favorited: currentFavoriteState } : loc
-      ))
-      setFilteredLocations(prev => prev.map(loc => 
-        loc.id === id ? { ...loc, is_favorited: currentFavoriteState } : loc
+        loc.id === id
+          ? {
+            ...loc,
+            is_favorited: currentFavoriteState,
+            favorite_count: Math.max(0, loc.favorite_count + (currentFavoriteState ? 1 : -1)),
+          }
+          : loc
       ))
     }
   }
@@ -226,7 +284,11 @@ const HomePage: React.FC = () => {
   return (
     <div className="home-page">
       <Header user={user} onLogout={handleLogout} />
-      <SearchBar onSearch={handleSearch} onFilterChange={handleFilterChange} />
+      <SearchBar
+        onSearch={handleSearch}
+        onFilterChange={handleFilterChange}
+        onSortChange={handleSortChange}
+      />
 
       <div className="home-content">
         <div className="locations-list">

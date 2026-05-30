@@ -197,6 +197,8 @@ class LocationListSerializer(serializers.ModelSerializer):
     state = serializers.CharField(source='address.state', read_only=True)
     zip_code = serializers.CharField(source='address.zip_code', read_only=True)
     product_count = serializers.SerializerMethodField()
+    view_count = serializers.IntegerField(read_only=True, default=0)
+    favorite_count = serializers.IntegerField(read_only=True, default=0)
     products = ProductListSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
 
@@ -204,7 +206,8 @@ class LocationListSerializer(serializers.ModelSerializer):
         model = Location
         fields = (
             'id', 'name', 'location_type', 'producer_name', 'producer_details', 'main_image',
-            'latitude', 'longitude', 'city', 'state', 'zip_code', 'product_count', 'products',
+            'latitude', 'longitude', 'city', 'state', 'zip_code', 'product_count',
+            'view_count', 'favorite_count', 'products',
             'is_verified', 'is_favorited', 'suspended_by_billing'
         )
 

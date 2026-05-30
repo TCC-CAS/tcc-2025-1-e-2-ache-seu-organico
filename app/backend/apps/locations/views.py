@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Q
+from django.db.models import Count, Q
 from .models import Location, LocationImage
 from .serializers import (
     LocationSerializer,
@@ -21,7 +21,14 @@ class LocationViewSet(viewsets.ModelViewSet):
     """
     queryset = Location.objects.select_related(
         'producer', 'producer__user', 'address'
-    ).prefetch_related('products', 'images', 'favorited_by').filter(
+    ).prefetch_related('products', 'images', 'favorited_by').annotate(
+        view_count=Count(
+            'activity_logs',
+            filter=Q(activity_logs__activity_type='LOCATION_VIEW'),
+            distinct=True,
+        ),
+        favorite_count=Count('favorited_by', distinct=True),
+    ).filter(
         is_active=True, suspended_by_billing=False
     )
     
@@ -38,8 +45,8 @@ class LocationViewSet(viewsets.ModelViewSet):
         'producer__business_name',
         'products__name',
     ]
-    ordering_fields = ['created_at', 'name']
-    ordering = ['-producer__is_verified', '-created_at']
+    ordering_fields = ['created_at', 'name', 'view_count', 'favorite_count']
+    ordering = ['-is_verified', '-view_count', '-favorite_count', 'name']
 
     def get_serializer_class(self):
         if self.action == 'list':

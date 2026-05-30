@@ -178,6 +178,8 @@ export interface LocationListItem {
   state: string
   zip_code?: string
   product_count: number
+  view_count?: number
+  favorite_count?: number
   products: Product[]
   is_verified: boolean
   is_favorited?: boolean

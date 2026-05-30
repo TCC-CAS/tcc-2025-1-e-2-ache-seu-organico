@@ -5,10 +5,12 @@ import './SearchBar.css'
 interface SearchBarProps {
   onSearch: (query: string) => void
   onFilterChange: (filters: any) => void
+  onSortChange: (sort: string) => void
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange, onSortChange }) => {
   const [query, setQuery] = useState('')
+  const [sort, setSort] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({
     type: '',
@@ -26,6 +28,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
     const newFilters = { ...filters, [key]: value }
     setFilters(newFilters)
     onFilterChange(newFilters)
+  }
+
+  const handleSortChange = (value: string) => {
+    setSort(value)
+    onSortChange(value)
   }
 
   return (
@@ -50,11 +57,14 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
           Filtros
         </button>
 
-        <select className="sort-select">
+        <select
+          className="sort-select"
+          value={sort}
+          onChange={(e) => handleSortChange(e.target.value)}
+        >
           <option value="">Ordenar por</option>
-          <option value="distance">Mais próximo</option>
           <option value="name">Nome A-Z</option>
-          <option value="rating">Melhor avaliado</option>
+          <option value="rating">Melhor avaliadas</option>
         </select>
       </div>
 
