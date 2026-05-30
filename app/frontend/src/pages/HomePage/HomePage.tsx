@@ -26,6 +26,7 @@ interface Location {
   address: {
     city: string
     state: string
+    zip_code?: string
     latitude: number
     longitude: number
   }
@@ -35,6 +36,15 @@ interface Location {
   product_count: number
   products?: Product[]
 }
+
+const normalizeSearchText = (value?: string | number | null) =>
+  String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+
+const onlyDigits = (value?: string | number | null) => String(value ?? '').replace(/\D/g, '')
 
 const HomePage: React.FC = () => {
   const { user, logout } = useAuth()
@@ -70,6 +80,7 @@ const HomePage: React.FC = () => {
         address: {
           city: loc.city,
           state: loc.state,
+          zip_code: loc.zip_code,
           latitude: loc.latitude ? parseFloat(loc.latitude.toString()) : 0,
           longitude: loc.longitude ? parseFloat(loc.longitude.toString()) : 0
         },
@@ -98,11 +109,26 @@ const HomePage: React.FC = () => {
       return
     }
 
-    const filtered = locations.filter(loc =>
-      loc.name.toLowerCase().includes(query.toLowerCase()) ||
-      loc.producer.business_name.toLowerCase().includes(query.toLowerCase()) ||
-      loc.address.city.toLowerCase().includes(query.toLowerCase())
-    )
+    const normalizedQuery = normalizeSearchText(query)
+    const queryDigits = onlyDigits(query)
+
+    const filtered = locations.filter(loc => {
+      const searchableFields = [
+        loc.name,
+        loc.producer.business_name,
+        loc.address.city,
+        loc.address.state,
+        loc.address.zip_code,
+        ...((loc.products || []).map(product => product.name)),
+      ]
+
+      const matchesText = searchableFields.some(field =>
+        normalizeSearchText(field).includes(normalizedQuery)
+      )
+      const matchesZipCode = Boolean(queryDigits) && onlyDigits(loc.address.zip_code).includes(queryDigits)
+
+      return matchesText || matchesZipCode
+    })
     setFilteredLocations(filtered)
   }
 

@@ -176,6 +176,7 @@ export interface LocationListItem {
   longitude?: number
   city: string
   state: string
+  zip_code?: string
   product_count: number
   products: Product[]
   is_verified: boolean

@@ -29,7 +29,15 @@ class LocationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['location_type', 'is_verified', 'address__city', 'address__state']
-    search_fields = ['name', 'description', 'address__city', 'address__neighborhood', 'producer__business_name']
+    search_fields = [
+        'name',
+        'description',
+        'address__city',
+        'address__neighborhood',
+        'address__zip_code',
+        'producer__business_name',
+        'products__name',
+    ]
     ordering_fields = ['created_at', 'name']
     ordering = ['-producer__is_verified', '-created_at']
 
