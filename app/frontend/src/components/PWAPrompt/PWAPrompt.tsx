@@ -2,6 +2,13 @@ import { useEffect, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import './PWAPrompt.css'
 
+const PWA_INSTALL_DISMISSED_KEY = 'pwa-install-prompt-dismissed'
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
 const PWAPrompt = () => {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false)
 
@@ -27,10 +34,16 @@ const PWAPrompt = () => {
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
+
+      if (localStorage.getItem(PWA_INSTALL_DISMISSED_KEY) === 'true') {
+        return
+      }
+
       setShowInstallPrompt(true)
       
       // Guardar o evento para usar depois
-      ;(window as any).deferredPrompt = e
+      ;(window as Window & { deferredPrompt?: BeforeInstallPromptEvent }).deferredPrompt =
+        e as BeforeInstallPromptEvent
     }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
@@ -41,7 +54,8 @@ const PWAPrompt = () => {
   }, [])
 
   const handleInstallClick = async () => {
-    const deferredPrompt = (window as any).deferredPrompt
+    const deferredPrompt = (window as Window & { deferredPrompt?: BeforeInstallPromptEvent })
+      .deferredPrompt
 
     if (!deferredPrompt) {
       return
@@ -52,7 +66,12 @@ const PWAPrompt = () => {
 
     console.log(`Usuário ${outcome === 'accepted' ? 'aceitou' : 'recusou'} instalar o app`)
 
-    ;(window as any).deferredPrompt = null
+    ;(window as Window & { deferredPrompt?: BeforeInstallPromptEvent }).deferredPrompt = undefined
+    setShowInstallPrompt(false)
+  }
+
+  const handleDismissInstallPrompt = () => {
+    localStorage.setItem(PWA_INSTALL_DISMISSED_KEY, 'true')
     setShowInstallPrompt(false)
   }
 
@@ -69,8 +88,8 @@ const PWAPrompt = () => {
             <button className="pwa-btn pwa-btn-primary" onClick={handleInstallClick}>
               Instalar
             </button>
-            <button className="pwa-btn pwa-btn-secondary" onClick={() => setShowInstallPrompt(false)}>
-              Agora não
+            <button className="pwa-btn pwa-btn-secondary" onClick={handleDismissInstallPrompt}>
+              Agora Não
             </button>
           </div>
         </div>
