@@ -1,6 +1,18 @@
 from rest_framework import serializers
-from .models import ProducerProfile
+from .models import ProducerProfile, ProducerVerificationDocument
 from apps.users.serializers import UserProfileSerializer
+
+
+class ProducerVerificationDocumentSerializer(serializers.ModelSerializer):
+    file_url = serializers.FileField(source='file', read_only=True)
+
+    class Meta:
+        model = ProducerVerificationDocument
+        fields = (
+            'id', 'original_filename', 'content_type', 'size',
+            'file_url', 'submitted_at',
+        )
+        read_only_fields = fields
 
 
 class ProducerProfileSerializer(serializers.ModelSerializer):
@@ -9,6 +21,7 @@ class ProducerProfileSerializer(serializers.ModelSerializer):
         source='user',
         read_only=True
     )
+    verification_documents = ProducerVerificationDocumentSerializer(many=True, read_only=True)
 
     class Meta:
         model = ProducerProfile
@@ -18,7 +31,7 @@ class ProducerProfileSerializer(serializers.ModelSerializer):
             'website', 'instagram', 'facebook', 'whatsapp',
             'legal_name', 'cnpj', 'state_registration', 'municipal_registration',
             'verification_status', 'verification_submitted_at', 'verification_reviewed_at',
-            'verification_notes',
+            'verification_notes', 'verification_documents',
             'is_verified', 'is_active', 'created_at', 'updated_at'
         )
         read_only_fields = (

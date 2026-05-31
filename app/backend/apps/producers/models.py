@@ -85,3 +85,32 @@ class ProducerProfile(TimeStampedModel):
 
     def __str__(self):
         return f"{self.business_name} - {self.user.email}"
+
+
+class ProducerVerificationDocument(TimeStampedModel):
+    """
+    Documents submitted by producers for business verification review.
+    """
+    producer = models.ForeignKey(
+        ProducerProfile,
+        on_delete=models.CASCADE,
+        related_name='verification_documents',
+        verbose_name='Produtor',
+    )
+    file = models.FileField(
+        upload_to='producers/verification_documents/',
+        max_length=500,
+        verbose_name='Arquivo',
+    )
+    original_filename = models.CharField(max_length=255, verbose_name='Nome original')
+    content_type = models.CharField(max_length=120, blank=True, verbose_name='Tipo de conteúdo')
+    size = models.PositiveIntegerField(default=0, verbose_name='Tamanho em bytes')
+    submitted_at = models.DateTimeField(auto_now_add=True, verbose_name='Enviado em')
+
+    class Meta:
+        verbose_name = 'Documento de Verificação'
+        verbose_name_plural = 'Documentos de Verificação'
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return self.original_filename

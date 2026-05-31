@@ -1,5 +1,21 @@
 from django.contrib import admin
-from .models import ProducerProfile
+from django.utils.html import format_html
+from .models import ProducerProfile, ProducerVerificationDocument
+
+
+class ProducerVerificationDocumentInline(admin.TabularInline):
+    model = ProducerVerificationDocument
+    extra = 0
+    fields = ('original_filename', 'content_type', 'size', 'submitted_at', 'download_link')
+    readonly_fields = ('original_filename', 'content_type', 'size', 'submitted_at', 'download_link')
+    can_delete = True
+
+    def download_link(self, obj):
+        if not obj.pk or not obj.file:
+            return '-'
+        return format_html('<a href="{}" download>Baixar arquivo</a>', obj.file.url)
+
+    download_link.short_description = 'Download'
 
 
 @admin.register(ProducerProfile)
@@ -15,6 +31,7 @@ class ProducerProfileAdmin(admin.ModelAdmin):
     )
     list_editable = ('is_verified', 'is_active')
     readonly_fields = ('verification_submitted_at', 'verification_reviewed_at', 'created_at', 'updated_at')
+    inlines = (ProducerVerificationDocumentInline,)
     
     fieldsets = (
         ('Informações Básicas', {
@@ -43,3 +60,18 @@ class ProducerProfileAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+@admin.register(ProducerVerificationDocument)
+class ProducerVerificationDocumentAdmin(admin.ModelAdmin):
+    list_display = ('original_filename', 'producer', 'content_type', 'size', 'submitted_at', 'download_link')
+    list_filter = ('content_type', 'submitted_at')
+    search_fields = ('original_filename', 'producer__business_name', 'producer__user__email')
+    readonly_fields = ('producer', 'original_filename', 'content_type', 'size', 'submitted_at', 'download_link')
+
+    def download_link(self, obj):
+        if not obj.file:
+            return '-'
+        return format_html('<a href="{}" download>Baixar arquivo</a>', obj.file.url)
+
+    download_link.short_description = 'Download'

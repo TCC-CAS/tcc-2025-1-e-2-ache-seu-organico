@@ -91,10 +91,20 @@ export interface ProducerProfile {
   verification_submitted_at: string | null
   verification_reviewed_at: string | null
   verification_notes: string
+  verification_documents: ProducerVerificationDocument[]
   is_verified: boolean
   is_active: boolean
   created_at: string
   updated_at: string
+}
+
+export interface ProducerVerificationDocument {
+  id: number
+  original_filename: string
+  content_type: string
+  size: number
+  file_url: string
+  submitted_at: string
 }
 
 export interface Address {

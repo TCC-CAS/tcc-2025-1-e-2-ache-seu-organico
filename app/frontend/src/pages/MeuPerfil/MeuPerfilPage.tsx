@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { User as UserIcon, Edit, Save, Mail, Phone, Leaf, Building2, ShieldCheck, Send } from 'lucide-react'
+import { User as UserIcon, Edit, Save, Mail, Phone, Leaf, Building2, ShieldCheck, Send, Upload, FileText, X } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
 import { useAuth } from '../../contexts/AuthContext'
 import { authService } from '../../api/auth'
@@ -12,6 +12,13 @@ import './MeuPerfilPage.css'
 type VerificationBadge = {
   text: string
   className: string
+}
+
+type PendingVerificationDocument = {
+  token: string
+  original_filename: string
+  content_type: string
+  size: number
 }
 
 const getVerificationBadge = (profile: ProducerProfile | null): VerificationBadge => {
@@ -34,6 +41,8 @@ const MeuPerfilPage = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [submittingVerification, setSubmittingVerification] = useState(false)
+  const [uploadingVerificationFiles, setUploadingVerificationFiles] = useState(false)
+  const [pendingVerificationDocuments, setPendingVerificationDocuments] = useState<PendingVerificationDocument[]>([])
   const [producerProfile, setProducerProfile] = useState<ProducerProfile | null>(null)
   const [convertToProducer, setConvertToProducer] = useState(false)
 
@@ -189,12 +198,44 @@ const MeuPerfilPage = () => {
     }))
   }
 
+  const formatFileSize = (size: number) => {
+    if (size < 1024) return `${size} B`
+    if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`
+    return `${(size / (1024 * 1024)).toFixed(1)} MB`
+  }
+
+  const handleVerificationFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    e.target.value = ''
+
+    if (!files.length) {
+      return
+    }
+
+    try {
+      setUploadingVerificationFiles(true)
+      const response = await producersService.uploadVerificationDocuments(files)
+      setPendingVerificationDocuments((prev) => [...prev, ...response.files])
+      toast.success(files.length === 1 ? 'Arquivo carregado para envio.' : 'Arquivos carregados para envio.')
+    } catch (error: any) {
+      const detail = error?.response?.data?.detail || 'Não foi possível carregar os arquivos.'
+      toast.error(detail)
+    } finally {
+      setUploadingVerificationFiles(false)
+    }
+  }
+
+  const handleRemovePendingDocument = (token: string) => {
+    setPendingVerificationDocuments((prev) => prev.filter((document) => document.token !== token))
+  }
+
   const handleSubmitVerification = async () => {
     try {
       setSubmittingVerification(true)
-      await producersService.submitVerification()
+      await producersService.submitVerification(pendingVerificationDocuments.map((document) => document.token))
       const profile = await producersService.getMe()
       setProducerProfile(profile)
+      setPendingVerificationDocuments([])
       toast.success('Cadastro empresarial enviado para verificação.')
     } catch (error: any) {
       const detail = error?.response?.data?.detail || 'Não foi possível enviar para verificação.'
@@ -512,15 +553,50 @@ const MeuPerfilPage = () => {
                       </small>
                     )}
                     {!producerProfile.is_verified && producerProfile.verification_status !== 'PENDING' && (
-                      <button
-                        type="button"
-                        className="btn-submit-verification"
-                        onClick={handleSubmitVerification}
-                        disabled={submittingVerification || isEditing || loading}
-                      >
-                        <Send size={16} />
-                        {submittingVerification ? 'Enviando...' : 'Enviar para verificação'}
-                      </button>
+                      <>
+                        <div className="verification-upload">
+                          <label className={`btn-upload-verification ${uploadingVerificationFiles || isEditing || loading ? 'disabled' : ''}`}>
+                            <Upload size={16} />
+                            {uploadingVerificationFiles ? 'Carregando arquivos...' : 'Adicionar documentos'}
+                            <input
+                              type="file"
+                              multiple
+                              onChange={handleVerificationFileUpload}
+                              disabled={uploadingVerificationFiles || isEditing || loading}
+                            />
+                          </label>
+                        </div>
+
+                        {pendingVerificationDocuments.length > 0 && (
+                          <div className="verification-documents-list">
+                            {pendingVerificationDocuments.map((document) => (
+                              <div className="verification-document-item" key={document.token}>
+                                <FileText size={16} />
+                                <span>{document.original_filename}</span>
+                                <small>{formatFileSize(document.size)}</small>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemovePendingDocument(document.token)}
+                                  disabled={submittingVerification}
+                                  aria-label={`Remover ${document.original_filename}`}
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        <button
+                          type="button"
+                          className="btn-submit-verification"
+                          onClick={handleSubmitVerification}
+                          disabled={submittingVerification || uploadingVerificationFiles || isEditing || loading}
+                        >
+                          <Send size={16} />
+                          {submittingVerification ? 'Enviando...' : 'Enviar para verificação'}
+                        </button>
+                      </>
                     )}
                   </div>
                 )}
