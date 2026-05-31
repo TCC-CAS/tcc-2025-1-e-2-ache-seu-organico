@@ -29,12 +29,13 @@ const getVerificationBadge = (profile: ProducerProfile | null): VerificationBadg
 }
 
 const MeuPerfilPage = () => {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const toast = useToast()
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [submittingVerification, setSubmittingVerification] = useState(false)
   const [producerProfile, setProducerProfile] = useState<ProducerProfile | null>(null)
+  const [convertToProducer, setConvertToProducer] = useState(false)
 
   const [formData, setFormData] = useState({
     first_name: user?.first_name || '',
@@ -88,6 +89,19 @@ const MeuPerfilPage = () => {
     loadProducerProfile()
   }, [toast, user?.user_type])
 
+  useEffect(() => {
+    if (!user || isEditing) return
+
+    setFormData((prev) => ({
+      ...prev,
+      first_name: user.first_name || '',
+      last_name: user.last_name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+    }))
+    setConvertToProducer(false)
+  }, [isEditing, user])
+
   const verificationBadge = useMemo(
     () => getVerificationBadge(producerProfile),
     [producerProfile]
@@ -105,11 +119,14 @@ const MeuPerfilPage = () => {
         first_name: formData.first_name,
         last_name: formData.last_name,
         phone: formData.phone,
+        ...(user?.user_type === 'CONSUMER' && convertToProducer ? { user_type: 'PRODUCER' as const } : {}),
       })
 
-      if (user?.user_type === 'PRODUCER') {
+      const updatedUser = await refreshUser()
+
+      if (user?.user_type === 'PRODUCER' || updatedUser?.user_type === 'PRODUCER') {
         const updatedProfile = await producersService.updateMe({
-          business_name: formData.business_name,
+          business_name: formData.business_name || `${formData.first_name} ${formData.last_name}`.trim() || formData.email,
           description: formData.description,
           legal_name: formData.legal_name,
           cnpj: formData.cnpj,
@@ -126,7 +143,8 @@ const MeuPerfilPage = () => {
       }
 
       setIsEditing(false)
-      toast.success('Perfil atualizado com sucesso.')
+      setConvertToProducer(false)
+      toast.success(convertToProducer ? 'Conta alterada para produtor com sucesso.' : 'Perfil atualizado com sucesso.')
     } catch {
       toast.error('Não foi possível salvar as alterações.')
     } finally {
@@ -136,6 +154,7 @@ const MeuPerfilPage = () => {
 
   const handleCancel = () => {
     setIsEditing(false)
+    setConvertToProducer(false)
     setFormData({
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',
@@ -285,6 +304,23 @@ const MeuPerfilPage = () => {
                 <div className="form-value">{formData.phone || 'Não informado'}</div>
               )}
             </div>
+
+            {user?.user_type === 'CONSUMER' && isEditing && (
+              <div className="account-conversion-panel">
+                <div>
+                  <strong>Mudar conta para produtor</strong>
+                  <p>Ative esta opção para liberar cadastro de feiras, produtos e planos de produtor.</p>
+                </div>
+                <label className="producer-switch">
+                  <input
+                    type="checkbox"
+                    checked={convertToProducer}
+                    onChange={(event) => setConvertToProducer(event.target.checked)}
+                  />
+                  <span>{convertToProducer ? 'Produtor' : 'Consumidor'}</span>
+                </label>
+              </div>
+            )}
 
             {user?.user_type === 'PRODUCER' && (
               <>

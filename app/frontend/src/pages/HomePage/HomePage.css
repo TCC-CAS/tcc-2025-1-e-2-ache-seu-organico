@@ -35,7 +35,7 @@ html, body {
 
 .home-content {
   position: fixed;
-  top: 155px;
+  top: 168px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -46,11 +46,12 @@ html, body {
 .locations-list {
   position: fixed;
   left: 0;
-    top: 175px;
+  top: 168px;
   bottom: 0;
-  width: 450px;
+  width: min(430px, 36vw);
+  min-width: 340px;
   overflow-y: auto;
-  padding: 2rem;
+  padding: 1.5rem;
   background: rgba(248, 248, 248, 0.95);
   backdrop-filter: blur(4px);
   border-right: 2px solid rgba(90, 114, 76, 0.15);
@@ -156,7 +157,7 @@ html, body {
 
 .map-container {
   position: fixed;
-  top: 155px;
+  top: 168px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -168,10 +169,8 @@ html, body {
 /* Responsive Design */
 @media (max-width: 1200px) {
   .locations-list {
-    left: 1rem;
-    right: 1rem;
-    width: auto;
-    max-width: 500px;
+    width: 390px;
+    min-width: 0;
   }
   
   .filters-panel {
@@ -182,33 +181,49 @@ html, body {
 
 @media (max-width: 900px) {
   .home-content {
-    height: auto;
-    margin-top: 80px;
+    position: static;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
   }
 
   .map-container {
     position: relative;
-    top: 0;
-    height: 400px;
+    order: 1;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    height: min(54vh, 420px);
+    min-height: 320px;
     margin-top: 0;
+    z-index: 1;
   }
 
   .locations-list {
     position: relative;
+    order: 2;
     left: 0;
     right: 0;
     width: auto;
-    margin: 1rem;
+    min-width: 0;
+    margin: 0;
     top: 0;
     bottom: auto;
-    max-height: 600px;
+    max-height: none;
+    overflow: visible;
+    border-right: 0;
+    border-top: 2px solid rgba(90, 114, 76, 0.15);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
   }
 }
 
 @media (max-width: 768px) {
   .locations-list {
-    padding: 1.5rem;
-    border-radius: 10px;
+    padding: 1rem;
+    border-radius: 0;
   }
 
   .cards-grid {
@@ -219,6 +234,17 @@ html, body {
     left: 0.5rem;
     right: 0.5rem;
     padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-container {
+    height: 46vh;
+    min-height: 280px;
+  }
+
+  .locations-list {
+    padding: 0.8rem;
   }
 }
 

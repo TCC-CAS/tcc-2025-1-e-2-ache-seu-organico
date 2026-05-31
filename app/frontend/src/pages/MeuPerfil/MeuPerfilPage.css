@@ -180,6 +180,44 @@
   align-items: center;
 }
 
+.account-conversion-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(90, 114, 76, 0.28);
+  border-radius: 10px;
+  background: rgba(90, 114, 76, 0.06);
+}
+
+.account-conversion-panel strong {
+  color: #395628;
+  font-size: 1rem;
+}
+
+.account-conversion-panel p {
+  margin: 0.25rem 0 0;
+  color: #5f6f58;
+  font-size: 0.9rem;
+}
+
+.producer-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #395628;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.producer-switch input {
+  width: 18px;
+  height: 18px;
+  accent-color: #5a724c;
+}
+
 .form-group small {
   color: #999;
   font-size: 0.85rem;
@@ -333,6 +371,11 @@
   }
 
   .form-actions {
+    flex-direction: column;
+  }
+
+  .account-conversion-panel {
+    align-items: flex-start;
     flex-direction: column;
   }
 

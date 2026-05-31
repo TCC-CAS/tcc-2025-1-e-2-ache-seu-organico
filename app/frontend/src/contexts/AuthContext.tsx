@@ -9,6 +9,7 @@ interface AuthContextType {
   loading: boolean
   login: (credentials: LoginCredentials) => Promise<void>
   register: (data: RegisterData) => Promise<void>
+  refreshUser: () => Promise<User | null>
   logout: () => void
   isAuthenticated: boolean
 }
@@ -62,6 +63,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  const refreshUser = async () => {
+    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+    if (!token) {
+      setUser(null)
+      return null
+    }
+
+    const userData = await authService.getCurrentUser()
+    setUser(userData)
+    return userData
+  }
+
   const logout = () => {
     authService.logout()
     setUser(null)
@@ -73,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     login,
     register,
+    refreshUser,
     logout,
     isAuthenticated: !!user,
   }

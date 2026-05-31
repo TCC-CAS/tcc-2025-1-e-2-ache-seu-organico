@@ -120,10 +120,6 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
           {/* Navegação para consumidores */}
           {!loading && isConsumer && (
             <>
-              <a href="/feiras" className="nav-link">
-                <Store size={18} />
-                <span>Feiras e Produtores</span>
-              </a>
               <a href="/favoritos" className="nav-link">
                 <Heart size={18} />
                 <span>Favoritos</span>

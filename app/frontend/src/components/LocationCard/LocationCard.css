@@ -50,17 +50,21 @@
   position: relative;
   height: 180px;
   overflow: hidden;
+  background: #5a724c;
 }
 
 .card-image img {
-  width: 100%;
-  height: 100%;
+  display: block;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
   object-fit: cover;
+  object-position: center center;
   transition: transform 0.3s ease;
+  transform: translate(-1px, -1px) scale(1.01);
 }
 
 .location-card:hover .card-image img {
-  transform: scale(1.05);
+  transform: translate(-1px, -1px) scale(1.06);
 }
 
 .card-image-placeholder {
@@ -261,10 +265,19 @@
 
 @media (max-width: 768px) {
   .card-image {
-    height: 140px;
+    height: clamp(150px, 42vw, 210px);
   }
 
   .card-title {
     font-size: 1.1rem;
+  }
+
+  .card-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .card-type {
+    max-width: 100%;
   }
 }
