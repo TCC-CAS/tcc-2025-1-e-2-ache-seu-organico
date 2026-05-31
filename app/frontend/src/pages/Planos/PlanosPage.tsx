@@ -183,14 +183,10 @@ const PlanosPage = () => {
                 produtor e tenha acesso a todos os planos disponíveis.
               </p>
               <div className="consumer-block-actions">
-                <Button variant="primary" onClick={() => window.location.href = '/perfil'}>
-                  Ir para meu perfil
+                <Button variant="primary" onClick={() => window.location.href = '/meu-perfil'}>
+                  Converter perfil
                 </Button>
               </div>
-            </div>
-            <div className="consumer-block-callout">
-              <Info size={18} />
-              <span>A conversão de perfil estará disponível em breve.</span>
             </div>
           </div>
 
