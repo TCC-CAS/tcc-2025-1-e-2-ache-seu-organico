@@ -41,7 +41,7 @@ class ActivityLog(TimeStampedModel):
     
     location = models.ForeignKey(
         Location,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='activity_logs',
@@ -50,7 +50,7 @@ class ActivityLog(TimeStampedModel):
     
     product = models.ForeignKey(
         Product,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='activity_logs',
@@ -59,7 +59,7 @@ class ActivityLog(TimeStampedModel):
     
     producer = models.ForeignKey(
         ProducerProfile,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='activity_logs',

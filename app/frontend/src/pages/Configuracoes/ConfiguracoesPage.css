@@ -214,10 +214,67 @@ input:checked + .toggle-slider:before {
   align-self: flex-start;
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
   background: #c0392b;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+}
+
+.btn-danger:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.danger-error {
+  margin: -0.75rem 0 0;
+  color: #c0392b;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.delete-account-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.delete-modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(231, 76, 60, 0.12);
+  color: #c0392b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-modal-copy h3 {
+  margin: 0 0 0.5rem;
+  color: #c0392b;
+  font-size: 1.2rem;
+}
+
+.delete-modal-copy p {
+  margin: 0;
+  color: #555;
+  line-height: 1.55;
+}
+
+.delete-modal-error {
+  margin: 0;
+}
+
+.delete-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+.delete-modal-actions .btn-secondary,
+.delete-modal-actions .btn-danger {
+  align-self: auto;
 }
 
 /* Quick Settings Info */
@@ -271,5 +328,14 @@ input:checked + .toggle-slider:before {
 
   .toggle-switch {
     align-self: flex-end;
+  }
+
+  .delete-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .delete-modal-actions .btn-secondary,
+  .delete-modal-actions .btn-danger {
+    width: 100%;
   }
 }

@@ -10,6 +10,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>
   register: (data: RegisterData) => Promise<void>
   refreshUser: () => Promise<User | null>
+  deleteAccount: () => Promise<void>
   logout: () => void
   isAuthenticated: boolean
 }
@@ -81,12 +82,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     navigate('/login')
   }
 
+  const deleteAccount = async () => {
+    await authService.deleteAccount()
+    setUser(null)
+    navigate('/login', { replace: true })
+  }
+
   const value = {
     user,
     loading,
     login,
     register,
     refreshUser,
+    deleteAccount,
     logout,
     isAuthenticated: !!user,
   }

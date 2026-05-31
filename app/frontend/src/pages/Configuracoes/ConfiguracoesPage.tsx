@@ -1,9 +1,16 @@
 import { useState } from 'react'
-import { Settings, Save, Bell, Lock, Trash2, ChevronRight } from 'lucide-react'
+import { AlertTriangle, Settings, Save, Bell, Lock, Trash2, ChevronRight } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
+import Modal from '../../components/Modal'
+import { useAuth } from '../../contexts/AuthContext'
+import { getApiErrorMessage } from '../../utils/apiErrors'
 import './ConfiguracoesPage.css'
 
 const ConfiguracoesPage = () => {
+  const { deleteAccount } = useAuth()
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
@@ -31,11 +38,34 @@ const ConfiguracoesPage = () => {
     alert('Funcionalidade em desenvolvimento')
   }
 
-  const handleDeleteAccount = () => {
-    if (confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
-      // TODO: Implementar exclusão de conta
-      console.log('Excluir conta')
+  const handleDeleteAccount = async () => {
+    if (deleteLoading) {
+      return
     }
+
+    setDeleteLoading(true)
+    setDeleteError('')
+
+    try {
+      await deleteAccount()
+    } catch (error) {
+      setDeleteError(getApiErrorMessage(error, 'Não foi possível excluir sua conta. Tente novamente.'))
+      setDeleteLoading(false)
+    }
+  }
+
+  const openDeleteModal = () => {
+    setDeleteError('')
+    setDeleteModalOpen(true)
+  }
+
+  const closeDeleteModal = () => {
+    if (deleteLoading) {
+      return
+    }
+
+    setDeleteModalOpen(false)
+    setDeleteError('')
   }
 
   return (
@@ -219,14 +249,49 @@ const ConfiguracoesPage = () => {
                 <h4>Excluir Conta</h4>
                 <p>Uma vez excluída, sua conta não pode ser recuperada.</p>
               </div>
-              <button className="btn-danger" onClick={handleDeleteAccount}>
+              {deleteError && <p className="danger-error">{deleteError}</p>}
+              <button className="btn-danger" onClick={openDeleteModal} disabled={deleteLoading}>
                 <Trash2 size={18} />
-                Excluir Conta
+                {deleteLoading ? 'Excluindo...' : 'Excluir Conta'}
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={closeDeleteModal}
+        title="Excluir conta"
+        size="small"
+        showCloseButton={!deleteLoading}
+      >
+        <div className="delete-account-modal">
+          <div className="delete-modal-icon">
+            <AlertTriangle size={28} />
+          </div>
+
+          <div className="delete-modal-copy">
+            <h3>Tem certeza?</h3>
+            <p>
+              Sua conta, perfil, favoritos e dados vinculados serão excluídos permanentemente.
+              Esta ação não pode ser desfeita.
+            </p>
+          </div>
+
+          {deleteError && <p className="danger-error delete-modal-error">{deleteError}</p>}
+
+          <div className="delete-modal-actions">
+            <button className="btn-secondary" onClick={closeDeleteModal} disabled={deleteLoading}>
+              Cancelar
+            </button>
+            <button className="btn-danger" onClick={handleDeleteAccount} disabled={deleteLoading}>
+              <Trash2 size={18} />
+              {deleteLoading ? 'Excluindo...' : 'Excluir conta'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </Layout>
   )
 }

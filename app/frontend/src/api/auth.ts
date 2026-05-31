@@ -42,6 +42,11 @@ export const authService = {
     return response.data
   },
 
+  deleteAccount: async (): Promise<void> => {
+    await api.delete(AUTH_ENDPOINTS.ME)
+    authService.logout()
+  },
+
   isAuthenticated: (): boolean => {
     return !!localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
   },

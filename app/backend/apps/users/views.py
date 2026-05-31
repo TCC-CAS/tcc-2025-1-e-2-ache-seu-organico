@@ -1,7 +1,11 @@
+from django.db import transaction
+from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from apps.analytics.models import ActivityLog
+from apps.notifications.models import Notification
 from .models import User
 from .serializers import (
     UserSerializer,
@@ -17,6 +21,17 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    def get_queryset(self):
+        """
+        Non-staff users can only access their own account.
+        """
+        user = self.request.user
+        if user.is_authenticated and user.is_staff:
+            return User.objects.all()
+        if user.is_authenticated:
+            return User.objects.filter(pk=user.pk)
+        return User.objects.none()
 
     def get_permissions(self):
         """
@@ -51,17 +66,33 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
 
-    @action(detail=False, methods=['get', 'put', 'patch'])
+    @action(detail=False, methods=['get', 'put', 'patch', 'delete'])
     def me(self, request):
         """
         Get or update current user profile.
-        GET/PUT/PATCH /api/users/me/
+        GET/PUT/PATCH/DELETE /api/users/me/
         """
         user = request.user
         
         if request.method == 'GET':
             serializer = self.get_serializer(user)
             return Response(serializer.data)
+
+        if request.method == 'DELETE':
+            with transaction.atomic():
+                producer_profile = getattr(user, 'producer_profile', None)
+                if producer_profile:
+                    location_ids = list(producer_profile.locations.values_list('id', flat=True))
+                    product_ids = list(producer_profile.products.values_list('id', flat=True))
+
+                    ActivityLog.objects.filter(location_id__in=location_ids).update(location=None)
+                    ActivityLog.objects.filter(product_id__in=product_ids).update(product=None)
+                    ActivityLog.objects.filter(producer_id=producer_profile.id).update(producer=None)
+
+                ActivityLog.objects.filter(user=user).update(user=None)
+                Notification.objects.filter(author=user).update(author=None)
+                user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         
         serializer = UserSerializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
