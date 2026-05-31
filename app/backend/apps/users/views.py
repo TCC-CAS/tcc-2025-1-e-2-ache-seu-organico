@@ -8,6 +8,7 @@ from apps.analytics.models import ActivityLog
 from apps.notifications.models import Notification
 from .models import User
 from .serializers import (
+    ChangePasswordSerializer,
     UserSerializer,
     UserRegistrationSerializer,
     UserProfileSerializer
@@ -99,3 +100,18 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.save()
         
         return Response(UserProfileSerializer(user).data)
+
+    @action(detail=False, methods=['post'])
+    def change_password(self, request):
+        """
+        Change password for the authenticated user.
+        POST /api/users/change_password/
+        """
+        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+
+        user = request.user
+        user.set_password(serializer.validated_data['new_password'])
+        user.save(update_fields=['password'])
+
+        return Response({'message': 'Senha alterada com sucesso.'})

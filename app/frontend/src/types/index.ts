@@ -224,3 +224,9 @@ export interface RegisterData {
   user_type: 'CONSUMER' | 'PRODUCER'
   phone?: string
 }
+
+export interface ChangePasswordData {
+  current_password: string
+  new_password: string
+  new_password_confirm: string
+}

@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { type ChangeEvent, type FormEvent, useState } from 'react'
 import { AlertTriangle, Settings, Save, Bell, Lock, Trash2, ChevronRight } from 'lucide-react'
 import Layout from '../../components/Layout/Layout'
 import Modal from '../../components/Modal'
 import { useAuth } from '../../contexts/AuthContext'
+import { authService } from '../../api/auth'
 import { getApiErrorMessage } from '../../utils/apiErrors'
 import './ConfiguracoesPage.css'
 
@@ -11,6 +12,14 @@ const ConfiguracoesPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordForm, setPasswordForm] = useState({
+    current_password: '',
+    new_password: '',
+    new_password_confirm: '',
+  })
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
@@ -33,9 +42,49 @@ const ConfiguracoesPage = () => {
     alert('Configurações de privacidade salvas!')
   }
 
-  const handleChangePassword = () => {
-    // TODO: Implementar mudança de senha
-    alert('Funcionalidade em desenvolvimento')
+  const handlePasswordFormChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setPasswordForm({
+      ...passwordForm,
+      [event.target.name]: event.target.value,
+    })
+  }
+
+  const getPasswordErrorMessage = (error: unknown) => {
+    const data = (error as any)?.response?.data
+    return (
+      data?.current_password?.[0] ||
+      data?.new_password?.[0] ||
+      data?.new_password_confirm?.[0] ||
+      data?.non_field_errors?.[0] ||
+      getApiErrorMessage(error, 'Não foi possível alterar a senha. Tente novamente.')
+    )
+  }
+
+  const handleChangePassword = async (event: FormEvent) => {
+    event.preventDefault()
+    setPasswordMessage('')
+    setPasswordError('')
+
+    if (passwordForm.new_password !== passwordForm.new_password_confirm) {
+      setPasswordError('As senhas não coincidem.')
+      return
+    }
+
+    setPasswordLoading(true)
+
+    try {
+      const response = await authService.changePassword(passwordForm)
+      setPasswordForm({
+        current_password: '',
+        new_password: '',
+        new_password_confirm: '',
+      })
+      setPasswordMessage(response.message)
+    } catch (error) {
+      setPasswordError(getPasswordErrorMessage(error))
+    } finally {
+      setPasswordLoading(false)
+    }
   }
 
   const handleDeleteAccount = async () => {
@@ -97,130 +146,6 @@ const ConfiguracoesPage = () => {
                   <ChevronRight size={18} />
                 </a>
               </div>
-
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>Notificações por E-mail</h4>
-                  <p>Receba atualizações por e-mail</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.email}
-                    onChange={(e) => setNotifications({ ...notifications, email: e.target.checked })}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>Notificações Push</h4>
-                  <p>Receba notificações no navegador</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.push}
-                    onChange={(e) => setNotifications({ ...notifications, push: e.target.checked })}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>Mensagens</h4>
-                  <p>Notificar sobre novas mensagens</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.messages}
-                    onChange={(e) => setNotifications({ ...notifications, messages: e.target.checked })}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>Favoritos</h4>
-                  <p>Notificar sobre atualizações de favoritos</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.favorites}
-                    onChange={(e) => setNotifications({ ...notifications, favorites: e.target.checked })}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <button className="btn-save" onClick={handleSaveNotifications}>
-                <Save size={18} />
-                Salvar Notificações
-              </button>
-            </div>
-          </div>
-
-          {/* Privacidade */}
-          <div className="settings-section">
-            <div className="section-header">
-              <Lock size={24} color="#5a724c" />
-              <h2>Privacidade</h2>
-            </div>
-            <div className="section-content">
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>Mostrar E-mail</h4>
-                  <p>Tornar seu e-mail visível no perfil</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={privacy.showEmail}
-                    onChange={(e) => setPrivacy({ ...privacy, showEmail: e.target.checked })}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>Mostrar Telefone</h4>
-                  <p>Tornar seu telefone visível no perfil</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={privacy.showPhone}
-                    onChange={(e) => setPrivacy({ ...privacy, showPhone: e.target.checked })}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>Mostrar Localização</h4>
-                  <p>Mostrar sua cidade e estado</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={privacy.showLocation}
-                    onChange={(e) => setPrivacy({ ...privacy, showLocation: e.target.checked })}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <button className="btn-save" onClick={handleSavePrivacy}>
-                <Save size={18} />
-                Salvar Privacidade
-              </button>
             </div>
           </div>
 
@@ -231,10 +156,64 @@ const ConfiguracoesPage = () => {
               <h2>Segurança</h2>
             </div>
             <div className="section-content">
-              <button className="btn-secondary" onClick={handleChangePassword}>
-                <Lock size={18} />
-                Alterar Senha
-              </button>
+              <form className="password-settings-form" onSubmit={handleChangePassword}>
+                <div className="setting-info">
+                  <h4>Alterar Senha</h4>
+                  <p>Atualize sua senha usando a senha atual da conta.</p>
+                </div>
+
+                {passwordMessage && <p className="settings-success">{passwordMessage}</p>}
+                {passwordError && <p className="settings-error">{passwordError}</p>}
+
+                <div className="password-fields">
+                  <div className="settings-field">
+                    <label htmlFor="current_password">Senha atual</label>
+                    <input
+                      id="current_password"
+                      type="password"
+                      name="current_password"
+                      value={passwordForm.current_password}
+                      onChange={handlePasswordFormChange}
+                      placeholder="Senha atual"
+                      required
+                      disabled={passwordLoading}
+                    />
+                  </div>
+
+                  <div className="settings-field">
+                    <label htmlFor="new_password">Nova senha</label>
+                    <input
+                      id="new_password"
+                      type="password"
+                      name="new_password"
+                      value={passwordForm.new_password}
+                      onChange={handlePasswordFormChange}
+                      placeholder="Nova senha"
+                      required
+                      disabled={passwordLoading}
+                    />
+                  </div>
+
+                  <div className="settings-field">
+                    <label htmlFor="new_password_confirm">Confirmar nova senha</label>
+                    <input
+                      id="new_password_confirm"
+                      type="password"
+                      name="new_password_confirm"
+                      value={passwordForm.new_password_confirm}
+                      onChange={handlePasswordFormChange}
+                      placeholder="Confirme a nova senha"
+                      required
+                      disabled={passwordLoading}
+                    />
+                  </div>
+                </div>
+
+                <button className="btn-secondary" type="submit" disabled={passwordLoading}>
+                  <Lock size={18} />
+                  {passwordLoading ? 'Alterando...' : 'Alterar Senha'}
+                </button>
+              </form>
             </div>
           </div>
 

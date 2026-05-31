@@ -171,34 +171,6 @@ const SettingsPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="settings-section">
-            <h2 className="section-title">Notificações por E-mail</h2>
-            <p className="section-description">
-              Receba também notificações no seu e-mail
-            </p>
-
-            <div className="settings-list">
-              <div className="setting-item">
-                <div className="setting-info">
-                  <div className="setting-icon email">
-                    <Bell size={20} />
-                  </div>
-                  <div className="setting-text">
-                    <h3>E-mails de notificação</h3>
-                    <p>Receba um resumo diário das suas notificações por e-mail</p>
-                  </div>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={preferences.email_notifications}
-                    onChange={() => handleToggle('email_notifications')}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-            </div>
-          </div>
 
           <div className="settings-actions">
             <button

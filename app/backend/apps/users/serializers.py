@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.contrib.auth import password_validation
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import DatabaseError
 from .models import User
 
@@ -151,3 +153,26 @@ class UserProfileSerializer(BillingInfoMixin, serializers.ModelSerializer):
             'billing_limits', 'created_at'
         )
         read_only_fields = fields
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True, required=True)
+    new_password = serializers.CharField(write_only=True, required=True, min_length=8)
+    new_password_confirm = serializers.CharField(write_only=True, required=True)
+
+    def validate_current_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('Senha atual incorreta.')
+        return value
+
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['new_password_confirm']:
+            raise serializers.ValidationError({'new_password_confirm': 'As senhas não coincidem.'})
+
+        try:
+            password_validation.validate_password(attrs['new_password'], self.context['request'].user)
+        except DjangoValidationError as error:
+            raise serializers.ValidationError({'new_password': error.messages})
+
+        return attrs

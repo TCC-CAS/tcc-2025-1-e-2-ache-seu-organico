@@ -1,6 +1,7 @@
 import api from './axios'
 import type { 
   AuthTokens, 
+  ChangePasswordData,
   LoginCredentials, 
   RegisterData, 
   User 
@@ -39,6 +40,11 @@ export const authService = {
   updateProfile: async (data: Partial<User>): Promise<User> => {
     const response = await api.patch<User>(AUTH_ENDPOINTS.ME, data)
     localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.data))
+    return response.data
+  },
+
+  changePassword: async (data: ChangePasswordData): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>(AUTH_ENDPOINTS.CHANGE_PASSWORD, data)
     return response.data
   },
 

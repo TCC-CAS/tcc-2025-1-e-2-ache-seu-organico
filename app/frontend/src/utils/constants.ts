@@ -10,6 +10,7 @@ export const AUTH_ENDPOINTS = {
   REFRESH: '/token/refresh/',
   REGISTER: '/users/register/',
   ME: '/users/me/',
+  CHANGE_PASSWORD: '/users/change_password/',
 }
 
 // Resource endpoints
