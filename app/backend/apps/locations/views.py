@@ -1,0 +1,151 @@
+from rest_framework import viewsets, filters, status, serializers
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Count, Q
+from .models import Location, LocationImage
+from .serializers import (
+    LocationSerializer,
+    LocationCreateUpdateSerializer,
+    LocationListSerializer,
+    LocationImageSerializer
+)
+from apps.billing.utils import get_plan_for_user, raise_plan_limit
+
+
+class LocationViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Location model.
+    Provides CRUD operations and map data.
+    """
+    queryset = Location.objects.select_related(
+        'producer', 'producer__user', 'address'
+    ).prefetch_related('products', 'images', 'favorited_by').annotate(
+        view_count=Count(
+            'activity_logs',
+            filter=Q(activity_logs__activity_type='LOCATION_VIEW'),
+            distinct=True,
+        ),
+        favorite_count=Count('favorited_by', distinct=True),
+    ).filter(
+        is_active=True, suspended_by_billing=False
+    )
+    
+    serializer_class = LocationSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['location_type', 'is_verified', 'address__city', 'address__state']
+    search_fields = [
+        'name',
+        'description',
+        'address__city',
+        'address__neighborhood',
+        'address__zip_code',
+        'producer__business_name',
+        'products__name',
+    ]
+    ordering_fields = ['created_at', 'name', 'view_count', 'favorite_count']
+    ordering = ['-is_verified', '-view_count', '-favorite_count', 'name']
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return LocationListSerializer
+        elif self.action in ['create', 'update', 'partial_update']:
+            return LocationCreateUpdateSerializer
+        return LocationSerializer
+
+    def get_permissions(self):
+        """
+        Only authenticated users can create/update/delete locations.
+        """
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAuthenticated()]
+        return [IsAuthenticatedOrReadOnly()]
+
+    def perform_create(self, serializer):
+        """
+        Create location for current user's producer profile.
+        """
+        if not hasattr(self.request.user, 'producer_profile'):
+            raise serializers.ValidationError(
+                "Você precisa ter um perfil de produtor para criar localizações."
+            )
+        
+        producer_profile = self.request.user.producer_profile
+        plan = get_plan_for_user(self.request.user)
+        current_count = Location.objects.filter(producer=producer_profile).count()
+        limit = plan.max_locations
+
+        if limit is not None and current_count >= limit:
+            raise_plan_limit('feiras', plan, current_count, limit)
+
+        serializer.save(producer=producer_profile)
+
+    def perform_update(self, serializer):
+        """
+        Only the location owner can update their location.
+        """
+        if serializer.instance.producer.user != self.request.user:
+            raise serializers.ValidationError(
+                "Você só pode atualizar suas próprias localizações."
+            )
+        serializer.save()
+
+    @action(detail=False, methods=['get'])
+    def my_locations(self, request):
+        """
+        Get all locations for current user's producer profile.
+        GET /api/locations/my_locations/
+        """
+        if not hasattr(request.user, 'producer_profile'):
+            return Response(
+                {'detail': 'Você não possui um perfil de produtor.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        producer_profile = request.user.producer_profile
+        # Include suspended locations for the owner (so they know what's inaccessible)
+        locations = Location.objects.select_related(
+            'producer', 'producer__user', 'address'
+        ).prefetch_related('products', 'images', 'favorited_by').filter(
+            producer=producer_profile, is_active=True
+        )
+        serializer = LocationListSerializer(locations, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def map_data(self, request):
+        """
+        Get simplified location data for map display.
+        GET /api/locations/map_data/
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        
+        queryset = queryset.filter(
+            address__latitude__isnull=False,
+            address__longitude__isnull=False
+        )
+        
+        serializer = LocationListSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def add_image(self, request, pk=None):
+        """
+        Add an image to a location.
+        POST /api/locations/{id}/add_image/
+        """
+        location = self.get_object()
+        
+        if location.producer.user != request.user:
+            return Response(
+                {'detail': 'Você não tem permissão para adicionar imagens a esta localização.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        serializer = LocationImageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(location=location)
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

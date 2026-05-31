@@ -1,0 +1,272 @@
+.favoritos-page {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 100px auto 0;
+}
+
+.favoritos-header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.favoritos-header h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #2d3748;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.favoritos-header p {
+  color: #718096;
+  font-size: 1.125rem;
+}
+
+.favoritos-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  gap: 1.5rem;
+}
+
+.favoritos-empty h2 {
+  color: #2d3748;
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.favoritos-empty p {
+  color: #718096;
+  margin: 0;
+  font-size: 1.125rem;
+  max-width: 500px;
+}
+
+.favoritos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.favorito-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.favorito-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.favorito-image-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.favorito-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.favorito-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.btn-remove-favorite {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #e53e3e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.btn-remove-favorite:hover {
+  background: #fff;
+  transform: scale(1.1);
+}
+
+.verified-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(76, 175, 80, 0.95);
+  color: white;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.favorito-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+.favorito-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.favorito-header-content h3 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+}
+
+.location-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: #edf2f7;
+  color: #4a5568;
+  padding: 0.375rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.favorito-producer {
+  color: #718096;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.favorito-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4a5568;
+  font-size: 0.9375rem;
+}
+
+.info-item svg {
+  color: #4299e1;
+  flex-shrink: 0;
+}
+
+.favorito-note {
+  background: #f7fafc;
+  padding: 0.875rem;
+  border-radius: 8px;
+  color: #4a5568;
+  font-size: 0.9375rem;
+  margin: 0;
+  line-height: 1.6;
+  border-left: 3px solid #4299e1;
+}
+
+.favorito-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.favorito-actions button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .favoritos-page {
+    padding: 1.5rem;
+    margin-top: 80px;
+  }
+
+  .favoritos-header h1 {
+    font-size: 2rem;
+  }
+
+  .favoritos-header p {
+    font-size: 1rem;
+  }
+
+  .favoritos-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .favorito-actions {
+    flex-direction: column;
+  }
+
+  .favorito-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .favoritos-page {
+    padding: 1rem;
+  }
+
+  .favoritos-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .favorito-image-container {
+    height: 180px;
+  }
+
+  .favorito-content {
+    padding: 1.25rem;
+  }
+
+  .favorito-header-content h3 {
+    font-size: 1.25rem;
+  }
+}

@@ -1,0 +1,111 @@
+.pwa-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  max-width: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(57, 86, 40, 0.2);
+  padding: 1.25rem;
+  z-index: 10000;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  animation: slideIn 0.3s ease-out;
+  border: 2px solid rgba(90, 114, 76, 0.2);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.pwa-toast.pwa-install {
+  border-left: 4px solid #5a724c;
+}
+
+.pwa-toast.pwa-success {
+  border-left: 4px solid #10b981;
+}
+
+.pwa-toast.pwa-update {
+  border-left: 4px solid #3b82f6;
+}
+
+.pwa-message {
+  flex: 1;
+}
+
+.pwa-message strong {
+  display: block;
+  color: #395628;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.pwa-message p {
+  color: #5a724c;
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.pwa-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.pwa-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pwa-btn-primary {
+  background: linear-gradient(135deg, #5a724c 0%, #395628 100%);
+  color: white;
+}
+
+.pwa-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(90, 114, 76, 0.3);
+}
+
+.pwa-btn-secondary {
+  background: transparent;
+  color: #5a724c;
+  border: 1px solid rgba(90, 114, 76, 0.3);
+}
+
+.pwa-btn-secondary:hover {
+  background: rgba(90, 114, 76, 0.05);
+  border-color: #5a724c;
+}
+
+@media (max-width: 768px) {
+  .pwa-toast {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    max-width: none;
+  }
+
+  .pwa-actions {
+    flex-direction: column;
+  }
+
+  .pwa-btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,15 @@
+// Exportando componentes de forma centralizada
+export { default as Header } from './Header/Header'
+export { default as Footer } from './Footer/Footer'
+export { default as Input } from './Input/Input'
+export { default as Button } from './Button/Button'
+export { default as Layout } from './Layout/Layout'
+export { default as SearchBar } from './SearchBar/SearchBar'
+export { default as LocationCard } from './LocationCard/LocationCard'
+export { default as MapView } from './MapView/MapView'
+export { default as Loading } from './Loading/Loading'
+export { default as Modal } from './Modal/Modal'
+export { default as FairForm } from './FairForm/FairForm'
+export { ToastProvider, useToast } from './Toast'
+export type { FairFormData } from './FairForm'
+

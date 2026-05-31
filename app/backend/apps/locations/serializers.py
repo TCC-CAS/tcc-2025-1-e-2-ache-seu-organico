@@ -1,0 +1,224 @@
+from rest_framework import serializers
+from .models import Location, LocationImage
+from apps.common.models import Address
+from apps.products.serializers import ProductListSerializer
+from apps.producers.models import ProducerProfile
+from apps.products.models import Product
+import json
+
+
+class ProducerMinimalSerializer(serializers.ModelSerializer):
+    """Serializer mínimo para dados do produtor necessários para chat"""
+    user = serializers.IntegerField(source='user.id', read_only=True)
+    name = serializers.CharField(source='business_name', read_only=True)
+    
+    class Meta:
+        model = ProducerProfile
+        fields = ('id', 'user', 'name')
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = (
+            'id', 'street', 'number', 'complement', 'neighborhood',
+            'city', 'state', 'zip_code', 'latitude', 'longitude'
+        )
+
+
+class LocationImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LocationImage
+        fields = ('id', 'image', 'caption', 'order')
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    address = AddressSerializer()
+    images = LocationImageSerializer(many=True, read_only=True)
+    products = ProductListSerializer(many=True, read_only=True)
+    producer_name = serializers.CharField(source='producer.business_name', read_only=True)
+    producer_details = ProducerMinimalSerializer(source='producer', read_only=True)
+    product_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Location
+        fields = (
+            'id', 'producer', 'producer_name', 'producer_details', 'name', 'location_type',
+            'description', 'address', 'products', 'product_count', 'main_image', 'images',
+            'operation_days', 'operation_hours', 'phone', 'whatsapp',
+            'is_active', 'is_verified', 'suspended_by_billing', 'created_at', 'updated_at'
+        )
+        read_only_fields = ('id', 'producer', 'is_verified', 'suspended_by_billing', 'created_at', 'updated_at')
+
+    def get_product_count(self, obj):
+        return obj.products.count()
+
+    def create(self, validated_data):
+        address_data = validated_data.pop('address')
+        address = Address.objects.create(**address_data)
+        location = Location.objects.create(address=address, **validated_data)
+        return location
+
+    def update(self, instance, validated_data):
+        address_data = validated_data.pop('address', None)
+        
+        if address_data:
+            for attr, value in address_data.items():
+                setattr(instance.address, attr, value)
+            instance.address.save()
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        return instance
+
+
+class LocationCreateUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for creating/updating locations.
+    """
+    address = AddressSerializer()
+    product_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        write_only=True,
+        required=False
+    )
+
+    class Meta:
+        model = Location
+        fields = (
+            'name', 'location_type', 'description', 'address',
+            'product_ids', 'main_image', 'operation_days', 'operation_hours',
+            'phone', 'whatsapp'
+        )
+
+    def _normalize_multipart_data(self, data):
+        if not hasattr(data, 'getlist'):
+            return data.copy() if hasattr(data, 'copy') else data
+
+        normalized_data = {}
+        for key in data.keys():
+            values = data.getlist(key)
+            normalized_data[key] = values if len(values) > 1 else values[0]
+
+        return normalized_data
+
+    def to_internal_value(self, data):
+        """
+        Handle address field sent as JSON string (for FormData uploads)
+        """
+        data = self._normalize_multipart_data(data)
+
+        # Se address vier como string JSON (FormData), parsear
+        if isinstance(data.get('address'), str):
+            try:
+                data['address'] = json.loads(data['address'])
+            except json.JSONDecodeError:
+                raise serializers.ValidationError({'address': 'Formato de endereço inválido'})
+        
+        # Se product_ids vier como string JSON (FormData), parsear
+        if isinstance(data.get('product_ids'), str):
+            try:
+                data['product_ids'] = json.loads(data['product_ids'])
+            except json.JSONDecodeError:
+                raise serializers.ValidationError({'product_ids': 'Formato de IDs de produtos inválido'})
+        
+        return super().to_internal_value(data)
+
+    def create(self, validated_data):
+        address_data = validated_data.pop('address')
+        product_ids = validated_data.pop('product_ids', [])
+        
+        address = Address.objects.create(**address_data)
+        location = Location.objects.create(address=address, **validated_data)
+        
+        if product_ids:
+            location.products.set(product_ids)
+        
+        return location
+
+    def update(self, instance, validated_data):
+        address_data = validated_data.pop('address', None)
+        product_ids = validated_data.pop('product_ids', None)
+        
+        if address_data:
+            for attr, value in address_data.items():
+                setattr(instance.address, attr, value)
+            instance.address.save()
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        if product_ids is not None:
+            instance.products.set(product_ids)
+        
+        return instance
+
+    def validate_product_ids(self, value):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return value
+
+        producer_profile = request.user.producer_profile if hasattr(request.user, 'producer_profile') else None
+        if producer_profile is None:
+            raise serializers.ValidationError('Você precisa ter um perfil de produtor para associar produtos.')
+
+        owned_ids = set(
+            Product.objects.filter(id__in=value, producer=producer_profile).values_list('id', flat=True)
+        )
+        invalid_ids = [product_id for product_id in value if product_id not in owned_ids]
+        if invalid_ids:
+            raise serializers.ValidationError('Alguns produtos selecionados não pertencem ao seu catálogo.')
+
+        return value
+
+
+class LocationListSerializer(serializers.ModelSerializer):
+    """
+    Simplified serializer for location lists and map markers.
+    """
+    producer_name = serializers.CharField(source='producer.business_name', read_only=True)
+    producer_details = ProducerMinimalSerializer(source='producer', read_only=True)
+    latitude = serializers.DecimalField(
+        source='address.latitude',
+        max_digits=20,
+        decimal_places=10,
+        read_only=True
+    )
+    longitude = serializers.DecimalField(
+        source='address.longitude',
+        max_digits=20,
+        decimal_places=10,
+        read_only=True
+    )
+    city = serializers.CharField(source='address.city', read_only=True)
+    state = serializers.CharField(source='address.state', read_only=True)
+    zip_code = serializers.CharField(source='address.zip_code', read_only=True)
+    product_count = serializers.SerializerMethodField()
+    view_count = serializers.IntegerField(read_only=True, default=0)
+    favorite_count = serializers.IntegerField(read_only=True, default=0)
+    products = ProductListSerializer(many=True, read_only=True)
+    is_favorited = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Location
+        fields = (
+            'id', 'name', 'location_type', 'producer_name', 'producer_details', 'main_image',
+            'latitude', 'longitude', 'city', 'state', 'zip_code', 'product_count',
+            'view_count', 'favorite_count', 'products',
+            'is_verified', 'is_favorited', 'suspended_by_billing'
+        )
+
+    def get_product_count(self, obj):
+        return obj.products.count()
+    
+    def get_is_favorited(self, obj):
+        """
+        Check if current user has favorited this location.
+        """
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.favorited_by.filter(user=request.user).exists()
+        return False
