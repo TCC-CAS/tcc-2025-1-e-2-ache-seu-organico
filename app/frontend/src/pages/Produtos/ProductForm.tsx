@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Package, Upload, X } from 'lucide-react'
+import { Package, Trash2, Upload } from 'lucide-react'
 import { resolveImageUrl } from '../../utils/imageHelpers'
 import { productService, type Category } from '../../api/products'
 import Input from '../../components/Input'
@@ -156,8 +156,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 className="remove-image-btn"
                 onClick={handleRemoveImage}
                 disabled={isLoading}
+                aria-label="Remover imagem"
               >
-                <X size={20} />
+                <Trash2 size={18} strokeWidth={2.5} />
               </button>
             </div>
           ) : (

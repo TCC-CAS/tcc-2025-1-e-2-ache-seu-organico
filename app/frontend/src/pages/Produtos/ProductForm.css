@@ -55,12 +55,21 @@
   border-radius: 50%;
   width: 36px;
   height: 36px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.remove-image-btn svg {
+  display: block;
+  flex-shrink: 0;
+  color: #fff;
+  stroke: currentColor;
 }
 
 .remove-image-btn:hover:not(:disabled) {
